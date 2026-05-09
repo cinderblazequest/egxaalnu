@@ -554,3 +554,659 @@ def init() -> None:
 не «учебный бот школьника», а **готовая к внедрению платформа**.
 
 Удачи! Если что — пиши «Сделай X из ROADMAP.md» и Devin продолжит.
+
+---
+
+# Часть E. Рецепты для быстрой разработки (cookbook)
+
+> Этот раздел избавляет от 80% «куда что класть». Большинство задач
+> делается копированием шаблона ниже и подстановкой имён. Все
+> рецепты протестированы на текущем коде (май 2026).
+
+## E0. Карта проекта одной картинкой
+
+```
+egxaalnu/
+├── bot/                       # код Telegram-бота
+│   ├── __main__.py            # entry: polling/webhook + signal handlers
+│   ├── handlers.py            # ВСЕ хендлеры команд и callback (TG)
+│   ├── i18n.py                # переводы (ru/en/uz/kk) — единый dict[lang][key]
+│   ├── catalogue.py           # загрузка scenarios.json + AED
+│   ├── dispatcher.py          # чек-лист 112 (загрузка + render)
+│   ├── panic.py               # паника-протокол (загрузка + клавиатуры)
+│   ├── sos.py                 # формирование SOS-сообщения
+│   ├── aed.py                 # геопоиск ближайших АНД
+│   ├── certificate.py         # SHA-256 коды сертификатов
+│   ├── gamification.py        # XP, стрики, ачивки, лидерборд
+│   ├── sharing.py             # реферальные ссылки
+│   ├── accessibility.py       # шрифт/контраст/upper-case
+│   ├── vision.py              # GigaChat Vision (фото → сценарий)
+│   ├── mchs_rss.py            # МЧС RSS-алерты + подписки
+│   ├── api.py                 # REST API (aiohttp): /api/*
+│   ├── health.py              # /health endpoint
+│   ├── log_setup.py           # логирование (json/human)
+│   ├── storage.py             # SQLite-хранилище (async)
+│   ├── migrations.py          # m001..m011 — schema migrations
+│   ├── middleware/throttle.py # ограничение rate
+│   └── max/                   # АДАПТЕР MAX (новый!)
+│       ├── __main__.py        # entry для Max-бота
+│       ├── client.py          # async-клиент Max API
+│       └── handlers.py        # хендлеры команд и callback (Max)
+├── content/
+│   ├── scenarios.json         # 30 сценариев (источник правды)
+│   ├── aed_locations.json     # точки АНД
+│   ├── dispatcher_checklist.json
+│   ├── panic_protocol.json
+│   ├── achievements.json      # ачивки (id, title, condition)
+│   └── ...
+├── tools/
+│   ├── backup_db.py           # snapshot + AES-GCM + S3
+│   ├── import_aed_overpass.py # OSM → aed_locations.json
+│   ├── validate_content.py    # pydantic-проверка JSON
+│   └── generate_metronome.py  # mp3 для СЛР
+├── tests/                     # 210 кейсов pytest
+├── landing/                   # PWA (4 языка) + service worker
+├── docs/                      # jury_deck, finance_model, pilot_kit
+├── audio/                     # mp3 метронома
+├── ssl/                       # CA для GigaChat
+├── .github/workflows/ci.yml   # matrix Python 3.11/3.12
+├── Dockerfile                 # multi-stage non-root
+├── docker-compose.yml
+├── fly.toml                   # 512 MB + http_checks + webhook service
+├── Procfile                   # web: бот, max: max-бот
+├── pyproject.toml             # зависимости
+├── requirements.txt           # production
+├── requirements-dev.txt       # +ruff, pytest, cryptography, boto3
+├── .pre-commit-config.yaml
+├── .env.example               # все 30+ переменных с комментариями
+├── README.md
+├── CHANGELOG.md
+├── ROADMAP.md                 # этот файл
+└── INSTRUCTIONS_MAX_AND_TELEGRAM.md
+```
+
+**Где что искать:**
+- ✏ Хочешь поменять текст команды → `bot/i18n.py`.
+- ✏ Хочешь поменять список сценариев → `content/scenarios.json`.
+- ✏ Хочешь поменять реакцию на кнопку → `bot/handlers.py` или `bot/max/handlers.py`.
+- ✏ Хочешь добавить таблицу в БД → новая миграция `bot/migrations.py:m012_*`.
+- ✏ Хочешь логировать новое событие → `bot/storage.py:log_event()`.
+- ✏ Хочешь новый REST endpoint → `bot/api.py`.
+- ✏ Хочешь новый CLI-инструмент → `tools/<name>.py`.
+
+---
+
+## E1. Команды-шпаргалка
+
+```bash
+# Активация окружения
+source .venv/bin/activate
+
+# Lint + format
+ruff check . && ruff format --check .
+ruff check --fix . && ruff format .         # автофикс
+
+# Pre-commit (полный ход)
+pre-commit run --all-files
+
+# Тесты (быстро, без покрытия)
+pytest -q
+
+# Тесты с покрытием
+pytest -q --cov=bot --cov=tools --cov-report=term-missing
+
+# Только один тест-файл
+pytest -q tests/test_max_client.py -v
+
+# Только один кейс
+pytest -q tests/test_max_client.py::test_send_message_uses_post_with_chat_id
+
+# Запуск ботов локально
+python -m bot                                # Telegram
+python -m bot.max                            # Max
+honcho start                                 # оба сразу (через Procfile)
+
+# CLI-инструменты
+python -m tools.backup_db --dry-run
+python -m tools.backup_db --upload
+python -m tools.import_aed_overpass --bbox 55.5,37.3,56.0,37.9
+python -m tools.validate_content              # проверка scenarios.json
+
+# Git workflow
+git checkout -b devin/$(date +%s)-feature-name
+git add <files> && git commit -m "feat(scope): что делаем"
+git push -u origin HEAD
+
+# Docker
+docker compose up --build -d
+docker compose logs -f spas
+docker compose exec spas /bin/bash
+
+# Fly.io
+fly deploy
+fly logs --app spas-ai
+fly status
+fly ssh console
+fly secrets set KEY=value
+```
+
+---
+
+## E2. Рецепт: добавить новый сценарий первой помощи
+
+**Шаги (10 минут):**
+
+1. Открой `content/scenarios.json` и добавь объект в массив `scenarios`:
+   ```json
+   {
+     "id": "snake_bite",
+     "title": "Укус змеи",
+     "icon": "🐍",
+     "category": "urgent",
+     "summary": "Что делать при укусе ядовитой змеи.",
+     "phone": "112",
+     "metronome": false,
+     "steps": [
+       {"text": "Уложи пострадавшего, не давай ходить."},
+       {"text": "Зафиксируй конечность шиной или повязкой."},
+       {"text": "Приложи холод выше места укуса."},
+       {"text": "Срочно вызови 112 — нужна сыворотка."},
+       {"text": "Не отсасывай яд, не прижигай, не накладывай жгут."}
+     ],
+     "pre_test": [
+       {
+         "q": "Что НЕЛЬЗЯ делать при укусе змеи?",
+         "options": ["Уложить", "Отсасывать яд", "Звонить 112"],
+         "correct": 1
+       }
+     ],
+     "post_test": [
+       {
+         "q": "Куда прикладывать холод?",
+         "options": ["Прямо на рану", "Выше места укуса", "Ниже"],
+         "correct": 1
+       }
+     ]
+   }
+   ```
+2. Запусти `python -m tools.validate_content` — проверит, что pydantic
+   принимает структуру.
+3. Перезапусти бота — сценарий автоматически появится в `/sos`
+   в категории «urgent».
+4. Тесты не нужно править: `Catalogue` динамический.
+
+**Категории:**
+* `critical` — угроза жизни (СЛР, кровотечение, удушье).
+* `urgent` — требует помощи в часы (ожог, перелом, укус).
+* `minor` — бытовые травмы (порез, синяк, ссадина).
+
+---
+
+## E3. Рецепт: добавить новый язык (например, татарский)
+
+**Шаги (30 минут):**
+
+1. Зарегистрируй BCP-47 код: `tt` → tatar. Если уже есть нормализация
+   (`tt-RU`), и она маппится на `tt` — норм.
+2. В `bot/i18n.py` найди константы `ru/en/uz/kk` и добавь словарь `tt`:
+   ```python
+   _tt = {
+       "menu.title": "Беренче ярдәм",
+       "sos.text": "🚨 Хәвеф! 112-гә шалтыратыгыз...",
+       # ... (скопируй все ключи из _ru и переведи)
+   }
+   ```
+3. Добавь язык в SUPPORTED_LANGS:
+   ```python
+   SUPPORTED_LANGS = ("ru", "en", "uz", "kk", "tt")
+   ```
+4. В `bot/handlers.py:_lang_kb()` добавь кнопку выбора `🇹🇼 Tatar`.
+5. Добавь HTML-копию лендинга: `landing/index.tt.html`. Поменяй
+   `lang="ru"` на `lang="tt"`, переведи все строки.
+6. Обнови переключатель языка в `landing/index*.html` (5 файлов):
+   ```html
+   <a href="index.tt.html">🇹🇼 TT</a>
+   ```
+7. Тесты:
+   ```python
+   # tests/test_i18n_completeness.py — добавь "tt" в LANGS
+   LANGS = ("ru", "en", "uz", "kk", "tt")
+   ```
+8. Запусти `pytest -q tests/test_i18n_completeness.py` —
+   должны быть все ключи в новом языке.
+
+---
+
+## E4. Рецепт: добавить новую команду (паритет TG + Max)
+
+Допустим, нужна команда `/quiz` — случайный pre-test.
+
+**Шаги:**
+
+1. **Добавь обработчик в Telegram (`bot/handlers.py`):**
+   ```python
+   @router.message(Command("quiz"))
+   async def _cmd_quiz(message: Message) -> None:
+       uid = message.from_user.id
+       lang = await _user_lang(uid)
+       scenario = random.choice(list(catalogue.scenarios.values()))
+       q = random.choice(scenario.pre_test)
+       text = t("quiz.intro", lang) + "\n\n" + q.q
+       buttons = [
+           [InlineKeyboardButton(text=opt, callback_data=f"quiz:{scenario.id}:{q.correct}:{i}")]
+           for i, opt in enumerate(q.options)
+       ]
+       await message.answer(text, reply_markup=InlineKeyboardMarkup(inline_keyboard=buttons))
+
+   @router.callback_query(F.data.startswith("quiz:"))
+   async def _cb_quiz(query: CallbackQuery) -> None:
+       _, sid, correct, picked = query.data.split(":")
+       lang = await _user_lang(query.from_user.id)
+       msg = t("quiz.right", lang) if int(picked) == int(correct) else t("quiz.wrong", lang)
+       await query.message.answer(msg)
+       await query.answer()
+   ```
+
+2. **Добавь те же ключи в `bot/i18n.py`:**
+   ```python
+   "quiz.intro": "🎯 Случайный вопрос:",  # _ru
+   "quiz.right": "✅ Правильно! +5 XP",
+   "quiz.wrong": "❌ Не угадал. Попробуй ещё.",
+   ```
+   Скопируй и переведи в `_en`, `_uz`, `_kk`.
+
+3. **Зеркало в Max (`bot/max/handlers.py`):**
+   ```python
+   if cmd == "/quiz":
+       scenario = random.choice(list(ctx.catalogue.scenarios.values()))
+       q = random.choice(scenario.pre_test)
+       buttons = [[MaxButton(opt, f"quiz:{scenario.id}:{q.correct}:{i}")] for i, opt in enumerate(q.options)]
+       await client.send_message(chat_id, q.q, buttons=buttons)
+       return
+
+   # В handle_callback:
+   if payload.startswith("quiz:"):
+       _, sid, correct, picked = payload.split(":")
+       msg = "Правильно! +5 XP" if int(picked) == int(correct) else "Не угадал"
+       await client.send_message(chat_id, msg)
+       await client.answer_callback(callback_id)
+       return
+   ```
+
+4. **Тест (`tests/test_quiz.py`):**
+   ```python
+   import pytest
+   from bot.max.handlers import build_context, dispatch_update
+   from tests.test_max_client import _RecordingClient
+
+   @pytest.mark.asyncio
+   async def test_quiz_returns_question() -> None:
+       ctx = build_context(Path("content"))
+       client = _RecordingClient()
+       await dispatch_update(client, ctx, {
+           "update_type": "message_created",
+           "message": {"recipient": {"chat_id": 1}, "body": {"text": "/quiz"}},
+       })
+       assert client.sent and "?" in client.sent[0]["text"]
+   ```
+
+5. Прогон: `pytest -q tests/test_quiz.py`.
+
+---
+
+## E5. Рецепт: добавить миграцию БД
+
+Допустим, нужна таблица `scenarios_bookmarks`.
+
+**Шаги:**
+
+1. Открой `bot/migrations.py`. Найди последнюю миграцию (m011) и добавь
+   новую функцию:
+   ```python
+   async def m012_bookmarks(conn: aiosqlite.Connection) -> None:
+       """Закладки сценариев — пользователь может «отметить» сценарий."""
+       await conn.executescript("""
+           CREATE TABLE IF NOT EXISTS scenarios_bookmarks (
+               user_id INTEGER NOT NULL,
+               scenario_id TEXT NOT NULL,
+               created_at TEXT NOT NULL DEFAULT (datetime('now')),
+               PRIMARY KEY (user_id, scenario_id)
+           );
+           CREATE INDEX IF NOT EXISTS idx_bookmarks_user
+               ON scenarios_bookmarks(user_id);
+       """)
+       await conn.commit()
+   ```
+
+2. Зарегистрируй её в списке `MIGRATIONS` (по порядку):
+   ```python
+   MIGRATIONS = (
+       m001_init,
+       ...,
+       m011_alert_subscriptions,
+       m012_bookmarks,        # <- сюда
+   )
+   ```
+
+3. При старте `await init_db()` миграция применится автоматически
+   (есть таблица `_migrations` с историей).
+
+4. Проверь:
+   ```bash
+   rm -f spas.db
+   python -c "import asyncio; from bot.storage import init_db; asyncio.run(init_db())"
+   sqlite3 spas.db ".schema scenarios_bookmarks"
+   ```
+
+5. Тест:
+   ```python
+   # tests/test_storage_full.py
+   @pytest.mark.asyncio
+   async def test_bookmarks_table_created(tmp_path):
+       os.environ["DB_PATH"] = str(tmp_path / "spas.db")
+       from bot.storage import init_db, _connect
+       await init_db()
+       async with _connect() as conn:
+           cur = await conn.execute("SELECT name FROM sqlite_master WHERE name='scenarios_bookmarks'")
+           row = await cur.fetchone()
+       assert row is not None
+   ```
+
+---
+
+## E6. Рецепт: добавить ачивку
+
+**Шаги:**
+
+1. В `content/achievements.json` добавь объект:
+   ```json
+   {
+     "id": "polyglot_4",
+     "title": "Полиглот",
+     "description": "Прошёл сценарий на 4 разных языках",
+     "icon": "🌐",
+     "condition": {"type": "languages_used", "value": 4}
+   }
+   ```
+
+2. В `bot/gamification.py:_check_achievement()` добавь обработку
+   `condition.type == "languages_used"`:
+   ```python
+   if cond["type"] == "languages_used":
+       async with _connect() as conn:
+           cur = await conn.execute(
+               "SELECT COUNT(DISTINCT lang) FROM events WHERE user_id=? AND name='lang_changed'",
+               (uid,),
+           )
+           (count,) = await cur.fetchone()
+       return count >= cond["value"]
+   ```
+
+3. Тест:
+   ```python
+   # tests/test_gamification.py
+   @pytest.mark.asyncio
+   async def test_polyglot_achievement_unlocks(tmp_path):
+       # установить 4 разных lang_changed event'а
+       # вызвать evaluate_achievements
+       # проверить, что polyglot_4 в списке ачивок
+   ```
+
+---
+
+## E7. Рецепт: добавить REST API endpoint
+
+Допустим, эндпоинт `/api/stats` возвращает суммарную статистику.
+
+**Шаги:**
+
+1. В `bot/api.py` найди `build_api()` и добавь обработчик:
+   ```python
+   async def _stats_handler(request: web.Request) -> web.Response:
+       async with _connect() as conn:
+           cur = await conn.execute("SELECT COUNT(*) FROM users")
+           (users_count,) = await cur.fetchone()
+           cur = await conn.execute("SELECT COUNT(*) FROM events WHERE name='scenario_complete'")
+           (completes,) = await cur.fetchone()
+       return web.json_response({"users": users_count, "scenarios_completed": completes})
+
+   app.router.add_get("/api/stats", _stats_handler)
+   ```
+
+2. Добавь в OpenAPI spec (`bot/api.py:_openapi_spec()`):
+   ```python
+   paths["/api/stats"] = {
+       "get": {
+           "summary": "Сводная статистика",
+           "responses": {"200": {"description": "OK"}},
+       }
+   }
+   ```
+
+3. Тест:
+   ```python
+   # tests/test_api_endpoints.py
+   async def test_stats_endpoint(api_client):
+       resp = await api_client.get("/api/stats")
+       assert resp.status == 200
+       body = await resp.json()
+       assert "users" in body and "scenarios_completed" in body
+   ```
+
+---
+
+## E8. Рецепт: написать тест в стиле репо
+
+**Структура файла теста:**
+```python
+"""Краткое описание модуля под тестом и зачем эти тесты."""
+from __future__ import annotations
+
+import pytest
+from <module> import <symbol>
+
+# Группа 1: позитивные сценарии
+def test_normal_case_does_X() -> None:
+    assert <symbol>(...) == ...
+
+def test_handles_empty_input() -> None:
+    assert <symbol>([]) == ...
+
+# Группа 2: краевые случаи
+def test_raises_on_invalid_input() -> None:
+    with pytest.raises(ValueError):
+        <symbol>(None)
+
+# Группа 3: async-тесты — обязательно @pytest.mark.asyncio
+@pytest.mark.asyncio
+async def test_async_op() -> None:
+    result = await <symbol>(...)
+    assert result == ...
+```
+
+**Конвенции:**
+- Имя файла: `tests/test_<module>.py`.
+- Имя теста: `test_<что_проверяется>` (snake_case, глагол).
+- Один assert на тест где возможно (но смысловые группы — ок).
+- Никаких `time.sleep()` — используй `asyncio.sleep` или мок-таймера.
+- Сетевые запросы — мокать через `_StubSession` (см. `tests/test_max_client.py`)
+  или `aresponses` / `pytest-httpx`.
+
+---
+
+## E9. Конвенции кода (что я соблюдаю)
+
+* **Python 3.11+ синтаксис.** `dict[str, int]`, `int | None`, `from __future__ import annotations`.
+* **Type hints везде**, включая возвращаемое значение.
+* **Async всё, что I/O** — БД, HTTP, файлы (через aiofiles).
+* **Pydantic** для валидации внешних JSON (контент, конфиг).
+* **dataclasses** для внутренних структур.
+* **Имена:**
+  - Модули — `snake_case`.
+  - Классы — `PascalCase`.
+  - Функции/переменные — `snake_case`.
+  - Константы — `UPPER_SNAKE`.
+  - Приватные — префикс `_`.
+* **Логи:** `log = logging.getLogger("spas.<module>")`. Уровни:
+  - `error` — критичные сбои,
+  - `warning` — деградации,
+  - `info` — события («бот стартовал», «контент загружен»),
+  - `debug` — детали.
+* **Без `print()`** в проде — только в CLI-инструментах (`tools/*`).
+* **Без `assert` в рантайме** — только в тестах.
+* **Минимальные комментарии** — код должен читаться. Если без комментария
+  непонятно — переименуй переменную.
+* **Docstrings:**
+  - Модуль — обязателен (1–3 строки).
+  - Public class/function — желателен (что делает + edge-cases).
+  - Private — можно опустить.
+
+---
+
+## E10. Частые ошибки и как их быстро чинить
+
+| Ошибка | Причина | Фикс |
+|---|---|---|
+| `ImportError: cannot import name 'X'` | Имя функции изменилось | `grep -rn "def X" bot/` найди настоящее имя |
+| `aiosqlite.OperationalError: no such table` | Не запустилась миграция | `await init_db()` перед использованием |
+| `aiogram.exceptions.TelegramConflictError` | Запущено два инстанса с одним токеном | Убей второй / выключи polling если webhook |
+| `PermissionError: data/spas.db` | Нет прав в Fly volume | Маунт указан в fly.toml? Volume создан? |
+| `ruff: E501 line too long` | Строка > 100 | Разбей на несколько; не отключай rule |
+| `ruff: F401 imported but unused` | Импорт не используется | Удали или добавь к `__all__` |
+| `pytest: ModuleNotFoundError` | Нет venv или dev-deps | `pip install -r requirements-dev.txt` |
+| `pre-commit: 'mixed-line-ending'` | Windows CRLF | `git config core.autocrlf false` + `git rm --cached -r .` + reset |
+| `Max API 401 verify.token` | Невалидный `MAX_BOT_TOKEN` | Перевыпусти у @MasterBot |
+| `Max API 429 too_many_requests` | Превышен rate-limit | Throttle middleware или задержка |
+| Coverage < 70% | Новый код без тестов | Добавь тест-кейсы или поправь `--cov-fail-under` |
+
+---
+
+## E11. Git workflow
+
+```bash
+# 1. Новая ветка от текущей рабочей
+git checkout devin/<existing-branch>
+git checkout -b devin/$(date +%s)-feature-name
+
+# 2. Делай маленькие коммиты по смыслу
+git add <files>
+git commit -m "feat(scope): что делаем"
+
+# 3. Push и PR
+git push -u origin HEAD
+git_pr fetch_template
+git_pr create   # head=твоя ветка, base=рабочая или main
+
+# 4. Если CI падает
+git_pr ci_job_logs <job_id>
+# исправь и:
+git add <files>; git commit -m "fix: ..."; git push
+
+# 5. Никогда:
+# - git push --force-with-lease на main
+# - git commit --amend (только новые коммиты)
+# - git reset --hard (можно потерять работу)
+# - git rebase публичной истории
+```
+
+**Конвенция коммитов:**
+- `feat(scope): ...` — новая фича.
+- `fix(scope): ...` — баг-фикс.
+- `docs(scope): ...` — документация.
+- `test(scope): ...` — только тесты.
+- `chore(scope): ...` — обслуживание (deps, конфиг).
+- `refactor(scope): ...` — рефакторинг без изменения поведения.
+
+`scope` — папка/модуль (`max`, `i18n`, `devops`, `api`, etc.).
+
+---
+
+## E12. Промпты для Devin/Cursor/Claude (готовы к копированию)
+
+### «Добавить сценарий»
+```
+Прочитай ROADMAP.md раздел E2 и добавь сценарий "<id>"
+("<title>", категория <category>) в content/scenarios.json. Шаги
+действий: <step1>; <step2>; ... pre/post-тесты по 1 вопросу.
+После — прогон pytest и push в текущую ветку.
+```
+
+### «Добавить язык»
+```
+Прочитай ROADMAP.md раздел E3 и добавь поддержку языка <code>
+(<name>). Заполни все ключи в bot/i18n.py, добавь
+landing/index.<code>.html, обнови переключатель в существующих
+лендингах, добавь язык в tests/test_i18n_completeness.py.
+```
+
+### «Добавить команду паритетно в TG и Max»
+```
+Прочитай ROADMAP.md раздел E4 и добавь команду /<name> в
+bot/handlers.py (Telegram) и bot/max/handlers.py (Max). Реализуй
+<описание поведения>. Все строки — через bot/i18n.py с ключами
+<key1>, <key2>. Добавь юнит-тест в tests/test_<name>.py.
+```
+
+### «Сделай раздел A1 / A4 / A5 …»
+```
+Прочитай ROADMAP.md раздел <код>. Реализуй пункт целиком, прогони
+pytest, ruff, pre-commit, и создай PR с описанием по шаблону репо.
+```
+
+---
+
+## E13. Минимальные предохранители
+
+Перед каждым `git push`:
+```bash
+ruff check . && \
+ruff format --check . && \
+pre-commit run --all-files && \
+pytest -q --cov=bot --cov=tools --cov-fail-under=70
+```
+
+Если хоть что-то упало — НЕ пушим. Чиним.
+
+Перед каждым `fly deploy`:
+```bash
+docker build -t spas-test .
+docker run --rm --env-file .env spas-test python -m bot &
+sleep 10
+curl http://localhost:8080/health
+docker kill <container>
+```
+
+Перед каждым релизом — обнови `CHANGELOG.md` (раздел `Unreleased` →
+вынеси в новый версионированный с датой).
+
+---
+
+## E14. Где искать готовые сниппеты (внутри репо)
+
+| Что | Файл-пример |
+|---|---|
+| async-handler с inline-кнопками | `bot/handlers.py:_dispatcher_cmd` |
+| Pydantic-модель + загрузка JSON | `bot/dispatcher.py:load_dispatcher_checklist` |
+| Async SQLite query | `bot/storage.py:get_user_xp` |
+| aiohttp-роут с CORS | `bot/api.py:build_api` |
+| Тест-стаб для aiohttp.ClientSession | `tests/test_max_client.py:_StubSession` |
+| Pytest async fixture | `tests/test_api_endpoints.py:api_client` |
+| CLI с argparse | `tools/import_aed_overpass.py:main` |
+| Subprocess-тест с PYTHONHASHSEED | `tests/test_certificate_deterministic.py` |
+
+Скопируй и переименуй — это быстрее, чем писать с нуля.
+
+---
+
+## E15. Итог
+
+После прочтения этого раздела + AGENTS.md типовая задача занимает:
+- Новый сценарий: **10 минут**.
+- Новый язык: **30 минут**.
+- Новая команда (TG+Max): **45 минут**.
+- Новая миграция: **15 минут**.
+- Новый API-эндпоинт: **20 минут**.
+- Новая ачивка: **15 минут**.
+
+Если задача занимает больше — значит, не нашёл рецепт. Перечитай
+этот раздел, найди нужный шаблон, копируй.
