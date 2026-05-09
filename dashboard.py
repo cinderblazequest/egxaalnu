@@ -19,16 +19,44 @@ import streamlit as st
 
 DB_PATH = os.getenv("DB_PATH", str(Path(__file__).resolve().parent / "spas.db"))
 
+# Whitelist of tables the dashboard is allowed to read. Defining this as
+# a constant prevents accidental SQL-injection regressions if a future
+# refactor passes a user-controlled name.
+ALLOWED_TABLES: frozenset[str] = frozenset(
+    {
+        "users",
+        "events",
+        "feedback",
+        "test_results",
+        "ab_assignments",
+        "user_xp",
+        "achievements",
+        "consent_log",
+        "audit_log",
+        "alerts_seen",
+        "alert_subscriptions",
+        "scenarios_progress",
+        "user_settings",
+    }
+)
+
 
 @st.cache_data(ttl=60)
 def load_table(name: str) -> pd.DataFrame:
+    if name not in ALLOWED_TABLES:
+        # Defensive: never interpolate an arbitrary identifier into SQL.
+        raise ValueError(f"Table '{name}' is not in the dashboard allow-list.")
     if not Path(DB_PATH).exists():
         return pd.DataFrame()
     with sqlite3.connect(DB_PATH) as conn:
         cur = conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?", (name,))
         if not cur.fetchone():
             return pd.DataFrame()
-        return pd.read_sql_query(f"SELECT * FROM {name}", conn)
+        # Identifier is validated against ALLOWED_TABLES above; SQLite has no
+        # parameter binding for table names, so a quoted identifier is the
+        # safest remaining option.
+        quoted = '"' + name.replace('"', '""') + '"'
+        return pd.read_sql_query(f"SELECT * FROM {quoted}", conn)
 
 
 def _to_datetime(series: pd.Series) -> pd.Series:

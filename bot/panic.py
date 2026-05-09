@@ -11,6 +11,8 @@ from pathlib import Path
 from aiogram import Bot
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
+from bot.i18n import t
+
 log = logging.getLogger("spas.panic")
 
 
@@ -67,30 +69,30 @@ def load_panic_protocol(content_dir: Path) -> PanicProtocol:
     )
 
 
-def panic_intro_kb() -> InlineKeyboardMarkup:
+def panic_intro_kb(lang: str = "ru") -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text="🌬️ Подышать со мной 6/мин", callback_data="panic:breathe")],
-            [InlineKeyboardButton(text="🪨 Упражнение 5-4-3-2-1", callback_data="panic:ground")],
-            [InlineKeyboardButton(text="🆘 Что случилось?", callback_data="panic:triage")],
-            [InlineKeyboardButton(text="« в меню", callback_data="menu:home")],
+            [InlineKeyboardButton(text=t("panic.btn_breathe", lang), callback_data="panic:breathe")],
+            [InlineKeyboardButton(text=t("panic.btn_ground", lang), callback_data="panic:ground")],
+            [InlineKeyboardButton(text=t("panic.btn_triage", lang), callback_data="panic:triage")],
+            [InlineKeyboardButton(text=t("step.menu", lang), callback_data="menu:home")],
         ]
     )
 
 
-def triage_kb(protocol: PanicProtocol) -> InlineKeyboardMarkup:
+def triage_kb(protocol: PanicProtocol, lang: str = "ru") -> InlineKeyboardMarkup:
     rows = [
         [InlineKeyboardButton(text=opt.label, callback_data=f"panic_t:{opt.id}")] for opt in protocol.triage
     ]
-    rows.append([InlineKeyboardButton(text="« назад", callback_data="panic:home")])
+    rows.append([InlineKeyboardButton(text=t("nav.back", lang), callback_data="panic:home")])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
-def back_to_panic_kb() -> InlineKeyboardMarkup:
+def back_to_panic_kb(lang: str = "ru") -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text="« в panic-меню", callback_data="panic:home")],
-            [InlineKeyboardButton(text="« в главное меню", callback_data="menu:home")],
+            [InlineKeyboardButton(text=t("panic.btn_panic_menu", lang), callback_data="panic:home")],
+            [InlineKeyboardButton(text=t("panic.btn_main_menu", lang), callback_data="menu:home")],
         ]
     )
 
@@ -108,6 +110,7 @@ async def run_breathing(
     protocol: PanicProtocol,
     *,
     sleep: object | None = None,
+    lang: str = "ru",
 ) -> None:
     """Анимированный текстовый таймер дыхания.
 
@@ -125,15 +128,16 @@ async def run_breathing(
         ):
             try:
                 await msg.edit_text(
-                    f"<b>Цикл {i + 1} из {protocol.breathing_total_cycles}</b>\n\n{phase_text}"
+                    f"<b>{t('panic.cycle_label', lang, idx=i + 1, total=protocol.breathing_total_cycles)}</b>"
+                    f"\n\n{phase_text}"
                 )
             except Exception as exc:
                 log.debug("breathing edit_text failed: %s", exc)
             await sleep_fn(secs)
     try:
         await msg.edit_text(
-            f"✅ Готово. Ты прошёл(ла) {protocol.breathing_total_cycles} цикла.\n\n" f"{protocol.disclaimer}",
-            reply_markup=back_to_panic_kb(),
+            f"{t('panic.completed', lang, total=protocol.breathing_total_cycles)}\n\n{protocol.disclaimer}",
+            reply_markup=back_to_panic_kb(lang),
         )
     except Exception as exc:
         log.debug("breathing final edit_text failed: %s", exc)

@@ -105,6 +105,11 @@ SOS_TEXT = (
 )
 
 
+def sos_text(lang: str = "ru") -> str:
+    """Localized SOS top-of-funnel instruction."""
+    return t("sos.text", lang)
+
+
 def main_menu_kb(lang: str = "ru") -> InlineKeyboardMarkup:
     rows = [
         [InlineKeyboardButton(text=t("menu.btn_sos", lang), callback_data="menu:sos")],
@@ -124,11 +129,11 @@ def main_menu_kb(lang: str = "ru") -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
-def category_kb(scenarios: list[Scenario], _category: str) -> InlineKeyboardMarkup:
+def category_kb(scenarios: list[Scenario], _category: str, lang: str = "ru") -> InlineKeyboardMarkup:
     rows = [
         [InlineKeyboardButton(text=f"{s.icon} {s.title}", callback_data=f"scn:{s.id}")] for s in scenarios
     ]
-    rows.append([InlineKeyboardButton(text="« назад", callback_data="menu:home")])
+    rows.append([InlineKeyboardButton(text=t("nav.back", lang), callback_data="menu:home")])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
@@ -189,13 +194,15 @@ def nps_kb() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
-def dispatcher_question_kb(checklist: DispatcherChecklist, q_idx: int) -> InlineKeyboardMarkup:
+def dispatcher_question_kb(
+    checklist: DispatcherChecklist, q_idx: int, lang: str = "ru"
+) -> InlineKeyboardMarkup:
     q = checklist.questions[q_idx]
     rows = [
         [InlineKeyboardButton(text=ex[:60], callback_data=f"disp_e:{q_idx}:{i}")]
         for i, ex in enumerate(q.examples)
     ]
-    rows.append([InlineKeyboardButton(text="❌ Прервать", callback_data="disp:cancel")])
+    rows.append([InlineKeyboardButton(text=t("disp.cancel", lang), callback_data="disp:cancel")])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
@@ -379,7 +386,13 @@ def register_handlers(dp: Dispatcher, *, storage: Storage, content_dir: Path) ->
         await state.clear()
         if message.from_user:
             await storage.log_event(message.from_user.id, "sos")
-        await message.answer(SOS_TEXT, reply_markup=category_kb(catalogue.list_critical(), "critical"))
+            lang = await _user_lang(message.from_user.id)
+        else:
+            lang = "ru"
+        await message.answer(
+            t("sos.text", lang),
+            reply_markup=category_kb(catalogue.list_critical(), "critical", lang),
+        )
 
     dp.message.register(_sos, Command("sos"))
 
@@ -422,9 +435,12 @@ def register_handlers(dp: Dispatcher, *, storage: Storage, content_dir: Path) ->
         await state.clear()
         if message.from_user:
             await storage.log_event(message.from_user.id, "panic_open")
+            lang = await _user_lang(message.from_user.id)
+        else:
+            lang = "ru"
         await message.answer(
             f"😌 <b>Я рядом.</b>\n\n{panic_protocol.intro}",
-            reply_markup=panic_intro_kb(),
+            reply_markup=panic_intro_kb(lang),
         )
 
     dp.message.register(_panic_cmd, Command("panic"))
@@ -437,19 +453,20 @@ def register_handlers(dp: Dispatcher, *, storage: Storage, content_dir: Path) ->
             return
         target = cb.message
         action = cb.data.split(":", 1)[1]
+        lang = await _user_lang(cb.from_user.id)
         if action == "home":
             await target.edit_text(
                 f"😌 <b>Panic-режим.</b>\n\n{panic_protocol.intro}",
-                reply_markup=panic_intro_kb(),
+                reply_markup=panic_intro_kb(lang),
             )
         elif action == "breathe":
             await storage.log_event(cb.from_user.id, "panic_breathe")
             await target.edit_text(
                 "Запускаю дыхание 6/мин. Считай со мной.",
-                reply_markup=back_to_panic_kb(),
+                reply_markup=back_to_panic_kb(lang),
             )
             if cb.bot is not None:
-                await run_breathing(cb.bot, target.chat.id, panic_protocol)
+                await run_breathing(cb.bot, target.chat.id, panic_protocol, lang=lang)
             grant = await _grant_xp(cb.from_user.id, "panic_breathe")
             await _maybe_celebrate(target, grant)
         elif action == "ground":
@@ -459,12 +476,12 @@ def register_handlers(dp: Dispatcher, *, storage: Storage, content_dir: Path) ->
                 lines.append(f"{i}. {line}")
             lines.append("")
             lines.append(panic_protocol.grounding_outro)
-            await target.edit_text("\n".join(lines), reply_markup=back_to_panic_kb())
+            await target.edit_text("\n".join(lines), reply_markup=back_to_panic_kb(lang))
         elif action == "triage":
             await storage.log_event(cb.from_user.id, "panic_triage")
             await target.edit_text(
                 "Что случилось? Выбери ближе по описанию.",
-                reply_markup=triage_kb(panic_protocol),
+                reply_markup=triage_kb(panic_protocol, lang),
             )
         await cb.answer()
         _ = state
@@ -483,11 +500,12 @@ def register_handlers(dp: Dispatcher, *, storage: Storage, content_dir: Path) ->
             await cb.answer("Не найдено")
             return
         await storage.log_event(cb.from_user.id, "panic_triage_pick", option_id)
+        lang = await _user_lang(cb.from_user.id)
         rows: list[list[InlineKeyboardButton]] = []
         if opt.scenario:
             rows.append([InlineKeyboardButton(text="Открыть сценарий", callback_data=f"scn:{opt.scenario}")])
-        rows.append([InlineKeyboardButton(text="« в panic-меню", callback_data="panic:home")])
-        rows.append([InlineKeyboardButton(text="« в меню", callback_data="menu:home")])
+        rows.append([InlineKeyboardButton(text=t("panic.btn_panic_menu", lang), callback_data="panic:home")])
+        rows.append([InlineKeyboardButton(text=t("step.menu", lang), callback_data="menu:home")])
         await cb.message.edit_text(opt.message, reply_markup=InlineKeyboardMarkup(inline_keyboard=rows))
         await cb.answer()
 
@@ -531,10 +549,13 @@ def register_handlers(dp: Dispatcher, *, storage: Storage, content_dir: Path) ->
         await state.update_data(answers={}, q_idx=0)
         if message.from_user:
             await storage.log_event(message.from_user.id, "dispatcher_open")
+            lang = await _user_lang(message.from_user.id)
+        else:
+            lang = "ru"
         first = dispatcher_checklist.questions[0]
         await message.answer(
             f"{dispatcher_checklist.intro}\n\n<b>{first.label}</b>\n<i>{first.hint}</i>",
-            reply_markup=dispatcher_question_kb(dispatcher_checklist, 0),
+            reply_markup=dispatcher_question_kb(dispatcher_checklist, 0, lang),
         )
 
     dp.message.register(_dispatcher_cmd, Command("dispatcher"))
@@ -721,7 +742,9 @@ def register_handlers(dp: Dispatcher, *, storage: Storage, content_dir: Path) ->
         await state.update_data(answers=answers, q_idx=next_idx)
         q = dispatcher_checklist.questions[next_idx]
         text = f"<b>{q.label}</b>\n<i>{q.hint}</i>"
-        kb = dispatcher_question_kb(dispatcher_checklist, next_idx)
+        uid = sender.from_user.id if sender.from_user else None
+        lang = await _user_lang(uid) if uid is not None else "ru"
+        kb = dispatcher_question_kb(dispatcher_checklist, next_idx, lang)
         if isinstance(sender, CallbackQuery) and isinstance(sender.message, Message):
             await sender.message.answer(text, reply_markup=kb)
         elif isinstance(sender, Message):
@@ -807,21 +830,31 @@ def register_handlers(dp: Dispatcher, *, storage: Storage, content_dir: Path) ->
                 )
             await storage.log_event(cb.from_user.id, "training_menu")
         elif action == "sos":
-            await target.edit_text(SOS_TEXT, reply_markup=category_kb(catalogue.list_critical(), "critical"))
+            await target.edit_text(
+                t("sos.text", lang),
+                reply_markup=category_kb(catalogue.list_critical(), "critical", lang),
+            )
         elif action == "panic":
             await storage.log_event(cb.from_user.id, "panic_open")
             await target.edit_text(
                 f"😌 <b>Я рядом.</b>\n\n{panic_protocol.intro}",
-                reply_markup=panic_intro_kb(),
+                reply_markup=panic_intro_kb(lang),
             )
         elif action == "critical":
             await target.edit_text(
-                "🚨 Критические:", reply_markup=category_kb(catalogue.list_critical(), "critical")
+                t("cat.critical", lang),
+                reply_markup=category_kb(catalogue.list_critical(), "critical", lang),
             )
         elif action == "urgent":
-            await target.edit_text("⚠️ Срочные:", reply_markup=category_kb(catalogue.list_urgent(), "urgent"))
+            await target.edit_text(
+                t("cat.urgent", lang),
+                reply_markup=category_kb(catalogue.list_urgent(), "urgent", lang),
+            )
         elif action == "minor":
-            await target.edit_text("🩹 Лёгкие:", reply_markup=category_kb(catalogue.list_minor(), "minor"))
+            await target.edit_text(
+                t("cat.minor", lang),
+                reply_markup=category_kb(catalogue.list_minor(), "minor", lang),
+            )
         elif action == "aed":
             await target.answer("Отправь геолокацию ниже:", reply_markup=location_kb())
         elif action == "add_aed":
@@ -837,7 +870,7 @@ def register_handlers(dp: Dispatcher, *, storage: Storage, content_dir: Path) ->
             first = dispatcher_checklist.questions[0]
             await target.answer(
                 f"{dispatcher_checklist.intro}\n\n<b>{first.label}</b>\n<i>{first.hint}</i>",
-                reply_markup=dispatcher_question_kb(dispatcher_checklist, 0),
+                reply_markup=dispatcher_question_kb(dispatcher_checklist, 0, lang),
             )
         elif action == "certificate":
             completed = await storage.count_distinct_completed_scenarios(cb.from_user.id)

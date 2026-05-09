@@ -178,6 +178,32 @@ _STRINGS: dict[str, dict[str, str]] = {
         "scenario.completed": "👍 Сценарий пройден. Если хочешь проверить себя тестом — жми «🎓 Обучение» в меню.",
         "scenario.training_pre": "<b>Тест до обучения.</b>\n\n{question}",
         "scenario.training_post": "<b>Финальный тест.</b>\n\n{question}",
+        # navigation
+        "nav.back": "« назад",
+        "nav.cancel": "❌ Прервать",
+        # category headings (when user opens main menu → critical/urgent/minor)
+        "cat.critical": "🚨 Критические:",
+        "cat.urgent": "⚠️ Срочные:",
+        "cat.minor": "🩹 Лёгкие:",
+        # SOS top-level instruction (отображается перед списком критических сценариев)
+        "sos.text": (
+            "🆘 <b>SOS</b>\n\n"
+            "1. Позвони <b>112</b> — единый номер спасения.\n"
+            "2. Назови адрес, что случилось, сколько пострадавших.\n"
+            "3. Не клади трубку — диспетчер подскажет.\n\n"
+            "Что произошло? Выбери ситуацию ниже."
+        ),
+        # panic mode keyboard
+        "panic.btn_breathe": "🌬️ Подышать со мной 6/мин",
+        "panic.btn_ground": "🪨 Упражнение 5-4-3-2-1",
+        "panic.btn_triage": "🆘 Что случилось?",
+        "panic.btn_panic_menu": "« в panic-меню",
+        "panic.btn_main_menu": "« в главное меню",
+        "panic.cycle_label": "Цикл {idx} из {total}",
+        "panic.completed": "✅ Готово. Ты прошёл(ла) {total} цикла.",
+        # dispatcher (112) checklist UI strings
+        "disp.cancel": "❌ Прервать",
+        "disp.tips_header": "<b>Подсказки на время разговора:</b>",
     },
     "en": {
         "lang.changed": "Interface language: English.",
@@ -313,6 +339,27 @@ _STRINGS: dict[str, dict[str, str]] = {
         "scenario.completed": "👍 Scenario completed. Want to test yourself? Tap «🎓 Training» in the menu.",
         "scenario.training_pre": "<b>Quiz before training.</b>\n\n{question}",
         "scenario.training_post": "<b>Final quiz.</b>\n\n{question}",
+        "nav.back": "« back",
+        "nav.cancel": "❌ Cancel",
+        "cat.critical": "🚨 Critical:",
+        "cat.urgent": "⚠️ Urgent:",
+        "cat.minor": "🩹 Minor:",
+        "sos.text": (
+            "🆘 <b>SOS</b>\n\n"
+            "1. Call <b>112</b> — the universal emergency number.\n"
+            "2. State the address, what happened, how many casualties.\n"
+            "3. Stay on the line — the dispatcher will guide you.\n\n"
+            "What happened? Pick a situation below."
+        ),
+        "panic.btn_breathe": "🌬️ Breathe with me 6/min",
+        "panic.btn_ground": "🪨 Exercise 5-4-3-2-1",
+        "panic.btn_triage": "🆘 What happened?",
+        "panic.btn_panic_menu": "« back to panic menu",
+        "panic.btn_main_menu": "« back to main menu",
+        "panic.cycle_label": "Cycle {idx} of {total}",
+        "panic.completed": "✅ Done. You finished {total} cycles.",
+        "disp.cancel": "❌ Cancel",
+        "disp.tips_header": "<b>Tips while you are on the call:</b>",
     },
     "uz": {
         "lang.changed": "Interfeys tili: o'zbekcha.",
@@ -432,6 +479,27 @@ _STRINGS: dict[str, dict[str, str]] = {
         "scenario.completed": "👍 Stsenariy yakunlandi. O'zingizni sinamoqchimisiz? «🎓 O'qish» tugmasi.",
         "scenario.training_pre": "<b>O'qishdan oldingi test.</b>\n\n{question}",
         "scenario.training_post": "<b>Yakuniy test.</b>\n\n{question}",
+        "nav.back": "« orqaga",
+        "nav.cancel": "❌ Bekor qilish",
+        "cat.critical": "🚨 Kritik:",
+        "cat.urgent": "⚠️ Shoshilinch:",
+        "cat.minor": "🩹 Yengil:",
+        "sos.text": (
+            "🆘 <b>SOS</b>\n\n"
+            "1. <b>112</b> raqamiga qo'ng'iroq qiling — yagona favqulodda raqam.\n"
+            "2. Manzilni, nima yuz berganini, jabrlanuvchilar sonini ayting.\n"
+            "3. Go'shakni qo'ymang — dispetcher yo'l-yo'riq beradi.\n\n"
+            "Nima yuz berdi? Quyidan tanlang."
+        ),
+        "panic.btn_breathe": "🌬️ Birga nafas olamiz 6/daqiqa",
+        "panic.btn_ground": "🪨 5-4-3-2-1 mashqi",
+        "panic.btn_triage": "🆘 Nima yuz berdi?",
+        "panic.btn_panic_menu": "« panic menyusi",
+        "panic.btn_main_menu": "« asosiy menyu",
+        "panic.cycle_label": "Sikl {idx} / {total}",
+        "panic.completed": "✅ Tayyor. Siz {total} siklni bajardingiz.",
+        "disp.cancel": "❌ Bekor qilish",
+        "disp.tips_header": "<b>Qo'ng'iroq vaqtidagi maslahatlar:</b>",
     },
     "kk": {
         "lang.changed": "Интерфейс тілі: қазақша.",
@@ -548,6 +616,27 @@ _STRINGS: dict[str, dict[str, str]] = {
         "scenario.completed": "👍 Сценарий аяқталды. Өзіңізді тексергіңіз келе ме? «🎓 Оқыту» түймесін басыңыз.",
         "scenario.training_pre": "<b>Оқытудан алдынғы тест.</b>\n\n{question}",
         "scenario.training_post": "<b>Қорытынды тест.</b>\n\n{question}",
+        "nav.back": "« артқа",
+        "nav.cancel": "❌ Тоқтату",
+        "cat.critical": "🚨 Сын:",
+        "cat.urgent": "⚠️ Шұғыл:",
+        "cat.minor": "🩹 Жеңіл:",
+        "sos.text": (
+            "🆘 <b>SOS</b>\n\n"
+            "1. <b>112</b> нөміріне қоңырау шалыңыз — біртұтас құтқару нөмірі.\n"
+            "2. Мекенжайды, не болғанын, жарақат алғандар санын айтыңыз.\n"
+            "3. Тұтқаны қоймаңыз — диспетчер бағыттайды.\n\n"
+            "Не болды? Төменнен таңдаңыз."
+        ),
+        "panic.btn_breathe": "🌬️ Бірге дем алайық 6/мин",
+        "panic.btn_ground": "🪨 5-4-3-2-1 жаттығу",
+        "panic.btn_triage": "🆘 Не болды?",
+        "panic.btn_panic_menu": "« panic-мәзір",
+        "panic.btn_main_menu": "« басты мәзір",
+        "panic.cycle_label": "Цикл {idx} / {total}",
+        "panic.completed": "✅ Дайын. Сіз {total} циклды аяқтадыңыз.",
+        "disp.cancel": "❌ Тоқтату",
+        "disp.tips_header": "<b>Қоңырау кезіндегі кеңестер:</b>",
     },
 }
 

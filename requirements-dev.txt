@@ -7,3 +7,6 @@ ruff==0.6.9
 reportlab==4.2.5
 pandas==2.2.3
 streamlit==1.39.0
+# Опциональные зависимости (используются только инструментами в tools/, см. README).
+cryptography==43.0.1
+boto3==1.35.34

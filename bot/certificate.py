@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import datetime as dt
+import hashlib
 import io
 import logging
 from dataclasses import dataclass
@@ -38,9 +39,12 @@ def build_certificate_code(user_id: int, scenarios_completed: int, issued_at: dt
     Стабильно зависит от user_id + день выдачи + количество сценариев — поэтому
     повторная генерация в тот же день вернёт тот же код, а в следующий день
     другой (так пилот может выдавать «обновлённые» сертификаты).
+
+    Использует SHA-256, чтобы код был детерминированным между перезапусками
+    бота (Python ``hash()`` рандомизирует строки через PYTHONHASHSEED).
     """
     seed = f"{user_id}:{scenarios_completed}:{issued_at.strftime('%Y%m%d')}"
-    digest = abs(hash(seed))
+    digest = int.from_bytes(hashlib.sha256(seed.encode("utf-8")).digest()[:8], "big")
     suffix = format(digest % (36**4), "X").rjust(4, "0")[:4]
     serial = format(digest // (36**4) % 1_000_000, "06d")
     return f"SPAS-{issued_at.year}-{serial}-{suffix}"

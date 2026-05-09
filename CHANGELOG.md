@@ -6,6 +6,60 @@
 
 ## [Unreleased]
 
+### Added — Max (мессенджер VK; май 2026)
+* **`bot/max/`** — новый адаптер под Max Bot API (`platform-api.max.ru`):
+  - `client.py` — async-клиент (long-polling, send_message, callback) поверх
+    aiohttp; `MaxButton` поддерживает `callback`/`link`-кнопки.
+  - `handlers.py` — переиспользует `Catalogue`, `load_dispatcher_checklist`,
+    `load_panic_protocol`. Реализованы команды /start, /sos, /panic,
+    /dispatcher, /aed, /scenarios <id>, /help и inline-меню.
+  - `__main__.py` — entrypoint `python -m bot.max` с graceful-shutdown.
+* `Procfile` — добавлен процесс `max: python -m bot.max`.
+* `.env.example` — переменные `MAX_BOT_TOKEN`, `MAX_API_BASE`.
+* Тесты: 18 кейсов в `tests/test_max_client.py` (клиент, рендер, dispatch).
+
+### Added — final-polish (май 2026)
+* **i18n SOS / panic / dispatcher:** ключи `sos.text`, `nav.back/cancel`,
+  `cat.{critical,urgent,minor}`, `panic.*`, `disp.*` для ru/en/uz/kk.
+  `category_kb`, `dispatcher_question_kb`, `panic_intro_kb`, `triage_kb`,
+  `back_to_panic_kb`, `run_breathing` теперь принимают параметр `lang`.
+  Регрессионный тест `tests/test_i18n_completeness.py` фиксирует наличие
+  всех новых ключей во всех четырёх языках.
+* **Локализация PWA-лендинга:** `landing/index.uz.html`, `landing/index.kk.html`;
+  переключатель языка во всех 4 файлах ведёт на 4 языка.
+* **DevOps Dockerfile:** multi-stage build + non-root user `spas` (UID 10001) +
+  `tini` как PID 1 + `HEALTHCHECK` на `/health`. Изображение чище и безопаснее.
+* **DevOps fly.toml:** TCP/HTTP health-checks, отдельный TLS-сервис для
+  webhook (`internal_port = 8443`), VM повышен до 512 MB.
+* **DevOps graceful shutdown:** `bot/__main__.py` ставит обработчики
+  SIGTERM/SIGINT через `loop.add_signal_handler`; polling/webhook/RSS-таска
+  останавливаются по событию.
+* **Webhook-режим:** `WEBHOOK_MODE=1` поднимает aiohttp-приложение с
+  `aiogram.webhook.aiohttp_server.SimpleRequestHandler` на `/tg`,
+  регистрирует webhook в Telegram (`secret_token`), даёт `/healthz`.
+* **Backup script `tools/backup_db.py`:** atomic snapshot через
+  `sqlite3.Connection.backup`, AES-256-GCM шифрование (32-байтный ключ),
+  загрузка в любой S3-совместимый стор (Selectel / Yandex / MinIO / AWS) через
+  `boto3`. Поддерживает `--dry-run`, `--no-encrypt`, имя ключа со штампом UTC.
+* **AED Overpass импорт `tools/import_aed_overpass.py`:** запрашивает
+  `emergency=defibrillator` у Overpass API, мерджит в
+  `content/aed_locations.json` с де-дупом по округлённым координатам
+  (3 знака ≈ 110 м).
+* **Тесты (новые 88 кейсов):** API endpoints (health/scenarios/aed/dispatcher/
+  panic/openapi/CORS), allow-list dashboard, детерминированность сертификата
+  через subprocess с разным `PYTHONHASHSEED`, snapshot+encrypt+merge для tools/.
+* **Документация:** `.env.example` переписан как полный референс всех 30+
+  переменных (THROTTLE_*, LOG_FORMAT, SENTRY_DSN, API_*, MCHS_RSS_*,
+  WEBHOOK_*, BACKUP_S3_*, BACKUP_ENCRYPTION_KEY).
+
+### Fixed
+* **Стабильный код сертификата:** `abs(hash(seed))` заменён на
+  `hashlib.sha256(seed.encode()).digest()[:8]` — раньше `PYTHONHASHSEED`
+  делал код невоспроизводимым между перезапусками бота.
+* **dashboard.py SQL-инъекция:** имя таблицы валидируется по фиксированному
+  allow-list `ALLOWED_TABLES`; идентификатор оборачивается в кавычки. Любая
+  левая строка → `ValueError`.
+
 ### Added — block H/C7/C8/C2/A3 (январь 2026)
 * **152-ФЗ согласие (H8):** на `/start` показывается экран согласия
   с кнопками «Согласен / Не согласен / Открыть политику», ответ хранится
