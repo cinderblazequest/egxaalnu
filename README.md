@@ -193,6 +193,50 @@ docker compose up --build
 
 Запустит бота с включённым `/health`, REST API и SQLite в `./data/spas.db`.
 
+## Webhook-режим (опционально)
+
+В проде вместо long-polling можно перейти на webhook — это снижает
+задержку отклика и нагрузку на Telegram.
+
+```bash
+WEBHOOK_MODE=1
+WEBHOOK_URL=https://spas-ai.fly.dev/tg
+WEBHOOK_SECRET=$(openssl rand -hex 16)
+WEBHOOK_PORT=8443
+```
+
+`fly.toml` уже описывает TLS-сервис на 443 → `internal_port=8443`,
+а `bot/__main__.py` поднимает `aiogram.webhook.aiohttp_server` и сам
+зовёт `bot.set_webhook(secret_token=...)`. По SIGTERM webhook
+снимается через `delete_webhook`.
+
+## Резервные копии БД
+
+```bash
+# Сгенерировать ключ один раз и сохранить как secret в Fly:
+python -c "import secrets; print(secrets.token_hex(32))"
+
+# Cron / Fly cron-job (раз в сутки):
+python -m tools.backup_db --upload
+```
+
+Скрипт `tools/backup_db.py` делает atomic snapshot SQLite через
+`Connection.backup`, шифрует AES-256-GCM (формат
+`[ver][nonce][ciphertext+tag]`) и кладёт файл в S3-совместимое
+хранилище (Selectel / Yandex Object Storage / MinIO / AWS S3).
+Все секреты — через `BACKUP_S3_*` и `BACKUP_ENCRYPTION_KEY` (см.
+`.env.example`). Для локального теста: `--dry-run --no-encrypt`.
+
+## Импорт точек АНД из OpenStreetMap
+
+```bash
+python -m tools.import_aed_overpass --bbox 55.5,37.3,56.0,37.9
+```
+
+Запрашивает у Overpass API все объекты с тегом
+`emergency=defibrillator` в указанной рамке и мерджит их в
+`content/aed_locations.json` (де-дуп по координатам ~110 м).
+
 ## Документы для конкурса
 
 - `docs/jury_deck.md` — Marp-дек на 10 слайдов (`npx @marp-team/marp-cli` → PDF/PPTX).
