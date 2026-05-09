@@ -1,0 +1,50 @@
+# Local dev: `docker compose up`. Brings up bot + Streamlit dashboard,
+# sharing a single SQLite volume mounted at /data.
+#
+# Required: copy .env.example to .env and fill BOT_TOKEN at minimum.
+#
+# Notes:
+#   - On Fly.io we use the same Dockerfile but only run the bot.
+#   - The dashboard service installs requirements-dev.txt at boot.
+#   - The bot runs `python -m bot` via Dockerfile CMD; we override here
+#     to also serve the /health probe on 0.0.0.0:8080.
+
+services:
+  bot:
+    build: .
+    env_file:
+      - .env
+    environment:
+      DB_PATH: /data/app.db
+      HEALTH_PORT: "8080"
+      LOG_FORMAT: ${LOG_FORMAT:-json}
+    volumes:
+      - spas_data:/data
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+  dashboard:
+    image: python:3.12-slim
+    working_dir: /app
+    env_file:
+      - .env
+    environment:
+      DB_PATH: /data/app.db
+    volumes:
+      - .:/app
+      - spas_data:/data
+    command: >
+      bash -c "pip install -q -r requirements-dev.txt &&
+               streamlit run dashboard.py
+                 --server.port=8501
+                 --server.address=0.0.0.0
+                 --server.headless=true"
+    ports:
+      - "8501:8501"
+    depends_on:
+      - bot
+
+volumes:
+  spas_data:
+    driver: local

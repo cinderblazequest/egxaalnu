@@ -1,0 +1,30 @@
+# Pre-commit hooks for СПАС.
+# Install once with: pip install pre-commit && pre-commit install
+# Run manually:      pre-commit run --all-files
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.9
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: [--maxkb=512]
+
+  - repo: local
+    hooks:
+      - id: validate-content
+        name: validate scenarios JSON content
+        entry: python -m tools.validate_content
+        language: system
+        pass_filenames: false
+        files: ^content/.*\.json$

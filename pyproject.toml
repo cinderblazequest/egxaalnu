@@ -1,0 +1,84 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "spas-ai"
+version = "0.2.0"
+description = "СПАС: AI-помощник первой помощи в Telegram"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "СПАС Team" }]
+license = { text = "Apache-2.0" }
+keywords = ["first-aid", "telegram", "bot", "education", "russia", "teenagers"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Education",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Education",
+    "Natural Language :: Russian",
+]
+
+[tool.setuptools]
+packages = ["bot"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+extend-exclude = [
+    ".venv",
+    "build",
+    "dist",
+    "audio",
+    "landing",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "B",    # flake8-bugbear
+    "UP",   # pyupgrade
+    "C4",   # flake8-comprehensions
+    "SIM",  # flake8-simplify
+    "PL",   # pylint
+    "RUF",  # ruff-specific
+]
+ignore = [
+    "E501",     # line too long (we trust line-length config)
+    "PLR0913",  # too many arguments
+    "PLR0915",  # too many statements
+    "PLR0912",  # too many branches
+    "PLR2004",  # magic value
+    "PLR0911",  # too many returns
+    "B008",     # function call in default argument (aiogram filters)
+    "RUF001",   # cyrillic homoglyph confusables
+    "RUF002",   # docstring cyrillic confusables
+    "RUF003",   # comment cyrillic confusables
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["PLR2004", "B011"]
+"tools/*" = ["PLR2004", "T201"]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+asyncio_mode = "auto"
+filterwarnings = [
+    "ignore::DeprecationWarning:aiogram.*",
+]
+
+[tool.mypy]
+python_version = "3.11"
+strict = false
+ignore_missing_imports = true
+warn_unused_ignores = true
+warn_redundant_casts = true
