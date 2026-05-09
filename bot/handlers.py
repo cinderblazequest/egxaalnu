@@ -96,16 +96,6 @@ class SOSContactState(StatesGroup):
     waiting_share_location = State()
 
 
-WELCOME = (
-    "🚑 <b>СПАС</b> — карманный AI-помощник первой помощи\n\n"
-    "Я провожу тебя через действия в неотложной ситуации шаг за шагом.\n"
-    "30 сценариев — от СЛР до приступа астмы.\n\n"
-    "<b>Если случилось ПРЯМО СЕЙЧАС</b> — нажми /sos.\n"
-    "<b>Если страшно</b> — /panic, я подышу с тобой.\n\n"
-    "<i>Дисклеймер: справочный сервис, не заменяет 112/103. "
-    "При любой опасности первое действие — звонок 112.</i>"
-)
-
 SOS_TEXT = (
     "🆘 <b>SOS</b>\n\n"
     "1. Позвони <b>112</b> — единый номер спасения.\n"
@@ -115,20 +105,21 @@ SOS_TEXT = (
 )
 
 
-def main_menu_kb() -> InlineKeyboardMarkup:
+def main_menu_kb(lang: str = "ru") -> InlineKeyboardMarkup:
     rows = [
-        [InlineKeyboardButton(text="🆘 SOS — нужна помощь СЕЙЧАС", callback_data="menu:sos")],
-        [InlineKeyboardButton(text="😰 Мне страшно (panic-режим)", callback_data="menu:panic")],
-        [InlineKeyboardButton(text="🚨 Критические ситуации", callback_data="menu:critical")],
-        [InlineKeyboardButton(text="⚠️ Срочные ситуации", callback_data="menu:urgent")],
-        [InlineKeyboardButton(text="🩹 Лёгкие случаи", callback_data="menu:minor")],
-        [InlineKeyboardButton(text="📍 Найти ближайший АНД", callback_data="menu:aed")],
-        [InlineKeyboardButton(text="➕ Добавить АНД на карту", callback_data="menu:add_aed")],
-        [InlineKeyboardButton(text="📞 Что сказать диспетчеру 112", callback_data="menu:dispatcher")],
-        [InlineKeyboardButton(text="🎓 Мой сертификат", callback_data="menu:certificate")],
-        [InlineKeyboardButton(text="🏅 Профиль и XP", callback_data="menu:profile")],
-        [InlineKeyboardButton(text="❓ Свободный вопрос (AI)", callback_data="menu:ask")],
-        [InlineKeyboardButton(text="📊 Поделиться обратной связью", callback_data="menu:nps")],
+        [InlineKeyboardButton(text=t("menu.btn_sos", lang), callback_data="menu:sos")],
+        [InlineKeyboardButton(text=t("menu.btn_panic", lang), callback_data="menu:panic")],
+        [InlineKeyboardButton(text=t("menu.btn_critical", lang), callback_data="menu:critical")],
+        [InlineKeyboardButton(text=t("menu.btn_urgent", lang), callback_data="menu:urgent")],
+        [InlineKeyboardButton(text=t("menu.btn_minor", lang), callback_data="menu:minor")],
+        [InlineKeyboardButton(text=t("menu.btn_training", lang), callback_data="menu:training")],
+        [InlineKeyboardButton(text=t("menu.btn_aed", lang), callback_data="menu:aed")],
+        [InlineKeyboardButton(text=t("menu.btn_add_aed", lang), callback_data="menu:add_aed")],
+        [InlineKeyboardButton(text=t("menu.btn_dispatcher", lang), callback_data="menu:dispatcher")],
+        [InlineKeyboardButton(text=t("menu.btn_certificate", lang), callback_data="menu:certificate")],
+        [InlineKeyboardButton(text=t("menu.btn_profile", lang), callback_data="menu:profile")],
+        [InlineKeyboardButton(text=t("menu.btn_ask", lang), callback_data="menu:ask")],
+        [InlineKeyboardButton(text=t("menu.btn_feedback", lang), callback_data="menu:nps")],
     ]
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
@@ -149,7 +140,15 @@ def location_kb() -> ReplyKeyboardMarkup:
     )
 
 
-def step_kb(scenario_id: str, idx: int, total: int, phone: str) -> InlineKeyboardMarkup:
+def step_kb(
+    scenario_id: str,
+    idx: int,
+    total: int,
+    phone: str,
+    lang: str = "ru",
+    *,
+    training: bool = False,
+) -> InlineKeyboardMarkup:
     # Telegram inline keyboards do not allow tel:// URLs.
     # The phone number is rendered in the step text instead, where Telegram
     # mobile clients auto-detect it as a tappable link.
@@ -157,17 +156,20 @@ def step_kb(scenario_id: str, idx: int, total: int, phone: str) -> InlineKeyboar
     rows = []
     nav: list[InlineKeyboardButton] = []
     if idx > 0:
-        nav.append(InlineKeyboardButton(text="« шаг назад", callback_data=f"step:{scenario_id}:{idx-1}"))
+        nav.append(
+            InlineKeyboardButton(text=t("step.back", lang), callback_data=f"step:{scenario_id}:{idx-1}")
+        )
     if idx < total - 1:
-        nav.append(InlineKeyboardButton(text="шаг вперёд »", callback_data=f"step:{scenario_id}:{idx+1}"))
+        nav.append(
+            InlineKeyboardButton(text=t("step.fwd", lang), callback_data=f"step:{scenario_id}:{idx+1}")
+        )
     if nav:
         rows.append(nav)
     if idx == total - 1:
-        rows.append(
-            [InlineKeyboardButton(text="✅ Завершить и пройти тест", callback_data=f"end:{scenario_id}")]
-        )
-    rows.append([InlineKeyboardButton(text="🥁 Включить метроном", callback_data=f"metro:{scenario_id}")])
-    rows.append([InlineKeyboardButton(text="« в меню", callback_data="menu:home")])
+        finish_key = "step.finish_train" if training else "step.finish"
+        rows.append([InlineKeyboardButton(text=t(finish_key, lang), callback_data=f"end:{scenario_id}")])
+    rows.append([InlineKeyboardButton(text=t("step.metro", lang), callback_data=f"metro:{scenario_id}")])
+    rows.append([InlineKeyboardButton(text=t("step.menu", lang), callback_data="menu:home")])
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
@@ -285,7 +287,9 @@ def register_handlers(dp: Dispatcher, *, storage: Storage, content_dir: Path) ->
             if not await storage.has_consented(u.id, version=CONSENT_VERSION):
                 await message.answer(t("consent.intro", lang), reply_markup=_consent_kb(lang))
                 return
-        await message.answer(WELCOME, reply_markup=main_menu_kb())
+            await message.answer(t("menu.welcome", lang), reply_markup=main_menu_kb(lang))
+            return
+        await message.answer(t("menu.welcome", "ru"), reply_markup=main_menu_kb("ru"))
 
     dp.message.register(_start, CommandStart())
 
@@ -781,8 +785,27 @@ def register_handlers(dp: Dispatcher, *, storage: Storage, content_dir: Path) ->
             return
         action = cb.data.split(":", 1)[1]
         target = cb.message
+        settings = await storage.get_user_settings(cb.from_user.id)
+        lang = normalize_lang(settings.get("language", "ru"))
         if action == "home":
-            await target.edit_text(WELCOME, reply_markup=main_menu_kb())
+            await state.update_data(training=False)
+            await target.edit_text(t("menu.welcome", lang), reply_markup=main_menu_kb(lang))
+        elif action == "training":
+            await state.update_data(training=True)
+            scenarios_with_test = [sc for sc in catalogue.scenarios.values() if sc.pre_test or sc.post_test]
+            if not scenarios_with_test:
+                await target.edit_text(t("menu.training_empty", lang), reply_markup=main_menu_kb(lang))
+            else:
+                rows = [
+                    [InlineKeyboardButton(text=f"{sc.icon} {sc.title}", callback_data=f"tscn:{sc.id}")]
+                    for sc in scenarios_with_test
+                ]
+                rows.append([InlineKeyboardButton(text=t("step.menu", lang), callback_data="menu:home")])
+                await target.edit_text(
+                    t("menu.training_intro", lang),
+                    reply_markup=InlineKeyboardMarkup(inline_keyboard=rows),
+                )
+            await storage.log_event(cb.from_user.id, "training_menu")
         elif action == "sos":
             await target.edit_text(SOS_TEXT, reply_markup=category_kb(catalogue.list_critical(), "critical"))
         elif action == "panic":
@@ -844,9 +867,16 @@ def register_handlers(dp: Dispatcher, *, storage: Storage, content_dir: Path) ->
 
     dp.callback_query.register(_menu_cb, F.data.startswith("menu:"))
 
-    async def _start_steps(cb: CallbackQuery, scenario: Scenario, idx: int) -> None:
+    async def _user_lang(uid: int) -> str:
+        s = await storage.get_user_settings(uid)
+        return normalize_lang(s.get("language", "ru"))
+
+    async def _start_steps(
+        cb: CallbackQuery, scenario: Scenario, idx: int, *, training: bool = False
+    ) -> None:
         if not cb.message or not cb.from_user or not isinstance(cb.message, Message):
             return
+        lang = await _user_lang(cb.from_user.id)
         text = (
             f"{scenario.icon} <b>{scenario.title}</b>\n"
             f"<i>{scenario.summary}</i>\n\n"
@@ -855,10 +885,14 @@ def register_handlers(dp: Dispatcher, *, storage: Storage, content_dir: Path) ->
             f"{scenario.steps[idx]}"
         )
         await cb.message.edit_text(
-            text, reply_markup=step_kb(scenario.id, idx, len(scenario.steps), scenario.phone)
+            text,
+            reply_markup=step_kb(
+                scenario.id, idx, len(scenario.steps), scenario.phone, lang, training=training
+            ),
         )
 
     async def _scenario_cb(cb: CallbackQuery, state: FSMContext) -> None:
+        """Open a scenario directly with steps; pre-test is reserved for /training."""
         if not cb.data or not cb.message or not cb.from_user:
             return
         if not isinstance(cb.message, Message):
@@ -869,22 +903,45 @@ def register_handlers(dp: Dispatcher, *, storage: Storage, content_dir: Path) ->
         if not scenario:
             await cb.answer("Не найдено")
             return
+        await state.update_data(training=False)
         await storage.log_event(cb.from_user.id, "scenario_open", scenario_id)
-        if scenario.pre_test:
-            await state.set_state(ScenarioState.pre_test)
-            await state.update_data(scenario_id=scenario_id, phase="pre", correct=0, total=0, q_idx=0)
-            q = scenario.pre_test[0]
-            await cb.message.edit_text(
-                f"<b>Перед стартом — короткий тест.</b>\n\n{q.q}",
-                reply_markup=test_kb(scenario_id, "pre", 0, q.options),
-            )
-        else:
-            await _start_steps(cb, scenario, 0)
+        await _start_steps(cb, scenario, 0, training=False)
         await cb.answer()
 
     dp.callback_query.register(_scenario_cb, F.data.startswith("scn:"))
 
-    async def _step_cb(cb: CallbackQuery) -> None:
+    async def _training_scn_cb(cb: CallbackQuery, state: FSMContext) -> None:
+        """Training mode: pre-test (if available) -> steps -> post-test."""
+        if not cb.data or not cb.message or not cb.from_user:
+            return
+        if not isinstance(cb.message, Message):
+            await cb.answer()
+            return
+        scenario_id = cb.data.split(":", 1)[1]
+        scenario = catalogue.scenarios.get(scenario_id)
+        if not scenario:
+            await cb.answer("Не найдено")
+            return
+        await storage.log_event(cb.from_user.id, "training_open", scenario_id)
+        await state.update_data(training=True)
+        lang = await _user_lang(cb.from_user.id)
+        if scenario.pre_test:
+            await state.set_state(ScenarioState.pre_test)
+            await state.update_data(
+                scenario_id=scenario_id, phase="pre", correct=0, total=0, q_idx=0, training=True
+            )
+            q = scenario.pre_test[0]
+            await cb.message.edit_text(
+                t("scenario.training_pre", lang, question=q.q),
+                reply_markup=test_kb(scenario_id, "pre", 0, q.options),
+            )
+        else:
+            await _start_steps(cb, scenario, 0, training=True)
+        await cb.answer()
+
+    dp.callback_query.register(_training_scn_cb, F.data.startswith("tscn:"))
+
+    async def _step_cb(cb: CallbackQuery, state: FSMContext) -> None:
         if not cb.data or not cb.message or not cb.from_user:
             return
         _, scenario_id, idx_s = cb.data.split(":")
@@ -893,7 +950,9 @@ def register_handlers(dp: Dispatcher, *, storage: Storage, content_dir: Path) ->
         if not scenario:
             return
         await storage.log_event(cb.from_user.id, "step_open", f"{scenario_id}:{idx}")
-        await _start_steps(cb, scenario, idx)
+        data = await state.get_data()
+        training = bool(data.get("training", False))
+        await _start_steps(cb, scenario, idx, training=training)
         await cb.answer()
 
     dp.callback_query.register(_step_cb, F.data.startswith("step:"))
@@ -922,14 +981,21 @@ def register_handlers(dp: Dispatcher, *, storage: Storage, content_dir: Path) ->
         scenario_id = cb.data.split(":", 1)[1]
         await storage.log_event(cb.from_user.id, "scenario_complete", scenario_id)
         scenario = catalogue.scenarios.get(scenario_id)
-        if not scenario or not scenario.post_test:
-            await cb.message.answer("Готово! Вернись в меню: /start")
+        data = await state.get_data()
+        training = bool(data.get("training", False))
+        lang = await _user_lang(cb.from_user.id)
+        if not scenario or not training or not scenario.post_test:
+            await state.clear()
+            await cb.message.answer(t("scenario.completed", lang), reply_markup=main_menu_kb(lang))
+            await cb.answer()
             return
         await state.set_state(ScenarioState.post_test)
-        await state.update_data(scenario_id=scenario_id, phase="post", correct=0, total=0, q_idx=0)
+        await state.update_data(
+            scenario_id=scenario_id, phase="post", correct=0, total=0, q_idx=0, training=True
+        )
         q = scenario.post_test[0]
         await cb.message.answer(
-            f"<b>Финальный тест.</b>\n\n{q.q}",
+            t("scenario.training_post", lang, question=q.q),
             reply_markup=test_kb(scenario_id, "post", 0, q.options),
         )
         await cb.answer()
@@ -978,12 +1044,14 @@ def register_handlers(dp: Dispatcher, *, storage: Storage, content_dir: Path) ->
             return
 
         await storage.save_test(cb.from_user.id, scenario_id, phase, correct_total, total)
+        training = bool(data.get("training", False))
         if phase == "pre":
             await state.set_state(ScenarioState.in_steps)
+            await state.update_data(training=training)
             await cb.message.answer(
                 f"📊 Результат до обучения: {correct_total}/{total}.\nТеперь — пошаговый алгоритм.",
             )
-            await _start_steps(cb, scenario, 0)
+            await _start_steps(cb, scenario, 0, training=training)
         else:
             completed = await storage.count_distinct_completed_scenarios(cb.from_user.id)
             extra = ""

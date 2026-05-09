@@ -141,6 +141,43 @@ _STRINGS: dict[str, dict[str, str]] = {
         ),
         "vision.error": ("Не получилось распознать фото. Попробуй ещё раз или опиши текстом."),
         "vision.too_many": "Лимит фото-запросов исчерпан, попробуй через час.",
+        # main menu (реструктуризация: Обучение — отдельный пункт)
+        "menu.welcome": (
+            "🚑 <b>СПАС</b> — карманный AI-помощник первой помощи\n\n"
+            "Проводит через действия в неотложной ситуации шаг за шагом. "
+            "30 сценариев — от СЛР до приступа астмы.\n\n"
+            "<b>Если случилось ПРЯМО СЕЙЧАС</b> — жми /sos. Нужно успокоиться — /panic.\n"
+            "<b>Хочешь выучиться заранее?</b> Жми «🎓 Обучение» — тесты до и после.\n\n"
+            "<i>Дисклеймер: справочный сервис, не заменяет 112/103.</i>"
+        ),
+        "menu.btn_sos": "🆘 SOS — нужна помощь СЕЙЧАС",
+        "menu.btn_panic": "😰 Мне страшно (panic-режим)",
+        "menu.btn_critical": "🚨 Критические ситуации",
+        "menu.btn_urgent": "⚠️ Срочные ситуации",
+        "menu.btn_minor": "🩹 Лёгкие случаи",
+        "menu.btn_training": "🎓 Обучение (тесты + теория)",
+        "menu.btn_aed": "📍 Найти ближайший АНД",
+        "menu.btn_add_aed": "➕ Добавить АНД на карту",
+        "menu.btn_dispatcher": "📞 Что сказать диспетчеру 112",
+        "menu.btn_certificate": "🎓 Мой сертификат",
+        "menu.btn_profile": "🏅 Профиль и XP",
+        "menu.btn_ask": "❓ Свободный вопрос (AI)",
+        "menu.btn_feedback": "📊 Поделиться обратной связью",
+        "menu.training_intro": (
+            "🎓 <b>Режим обучения.</b> Выбери сценарий — бот сперва задаст "
+            "короткий тест «до», проведёт по шагам и предложит финальный тест. "
+            "Ответы сравниваются — видно, на сколько вырос твой результат."
+        ),
+        "menu.training_empty": ("Пока нет сценариев с тестами. Заходи позже."),
+        "step.back": "« шаг назад",
+        "step.fwd": "шаг вперёд »",
+        "step.metro": "🥁 Включить метроном",
+        "step.menu": "« в меню",
+        "step.finish": "✅ Завершить",
+        "step.finish_train": "✅ Завершить и пройти тест",
+        "scenario.completed": "👍 Сценарий пройден. Если хочешь проверить себя тестом — жми «🎓 Обучение» в меню.",
+        "scenario.training_pre": "<b>Тест до обучения.</b>\n\n{question}",
+        "scenario.training_post": "<b>Финальный тест.</b>\n\n{question}",
     },
     "en": {
         "lang.changed": "Interface language: English.",
@@ -240,6 +277,42 @@ _STRINGS: dict[str, dict[str, str]] = {
         ),
         "vision.error": "Couldn't recognise the photo. Try again or describe in text.",
         "vision.too_many": "Photo-request quota reached, try in an hour.",
+        "menu.welcome": (
+            "🚑 <b>СПАС</b> — your pocket AI first-aid helper\n\n"
+            "I walk you step by step through emergencies. "
+            "30 scenarios — from CPR to asthma attack.\n\n"
+            "<b>If something happens RIGHT NOW</b> — tap /sos. Need to calm down? /panic.\n"
+            "<b>Want to study in advance?</b> Tap «🎓 Training» — quizzes before & after.\n\n"
+            "<i>Disclaimer: this is a reference tool, it does not replace 112/103.</i>"
+        ),
+        "menu.btn_sos": "🆘 SOS — I need help NOW",
+        "menu.btn_panic": "😰 I'm scared (panic mode)",
+        "menu.btn_critical": "🚨 Critical situations",
+        "menu.btn_urgent": "⚠️ Urgent situations",
+        "menu.btn_minor": "🩹 Minor cases",
+        "menu.btn_training": "🎓 Training (quiz + practice)",
+        "menu.btn_aed": "📍 Find nearest AED",
+        "menu.btn_add_aed": "➕ Add AED to map",
+        "menu.btn_dispatcher": "📞 What to tell 112 dispatcher",
+        "menu.btn_certificate": "🎓 My certificate",
+        "menu.btn_profile": "🏅 Profile & XP",
+        "menu.btn_ask": "❓ Free question (AI)",
+        "menu.btn_feedback": "📊 Share feedback",
+        "menu.training_intro": (
+            "🎓 <b>Training mode.</b> Pick a scenario — the bot will run a short "
+            "«before» quiz, walk you through the steps and offer a final quiz. "
+            "You'll see how much your score improved."
+        ),
+        "menu.training_empty": "No quizzed scenarios yet. Come back later.",
+        "step.back": "« previous step",
+        "step.fwd": "next step »",
+        "step.metro": "🥁 Start metronome",
+        "step.menu": "« back to menu",
+        "step.finish": "✅ Finish",
+        "step.finish_train": "✅ Finish & take final quiz",
+        "scenario.completed": "👍 Scenario completed. Want to test yourself? Tap «🎓 Training» in the menu.",
+        "scenario.training_pre": "<b>Quiz before training.</b>\n\n{question}",
+        "scenario.training_post": "<b>Final quiz.</b>\n\n{question}",
     },
     "uz": {
         "lang.changed": "Interfeys tili: o'zbekcha.",
@@ -325,6 +398,40 @@ _STRINGS: dict[str, dict[str, str]] = {
         "vision.disabled": "📷 Rasm tanish o'chirilgan. Matnda yozing — stsenariy taklif qilaman.",
         "vision.error": "Rasmni tanib olmadim. Yana urinib ko'ring yoki matnda yozing.",
         "vision.too_many": "Rasm so'rovlari chegarasi tugadi, bir soatdan keyin urinib ko'ring.",
+        "menu.welcome": (
+            "🚑 <b>СПАС</b> — cho'ntak AI birinchi yordam yordamchisi\n\n"
+            "Favqulodda holatlarda qadamma-qadam yo'naltiraman. 30 ta stsenariy.\n\n"
+            "<b>Hozir favqulodda?</b> /sos. Tinchlanish kerakmi? /panic.\n"
+            "<b>Oldindan o'rganmoqchimisiz?</b> «🎓 O'qish» tugmasini bosing — testlar oldin va keyin.\n\n"
+            "<i>Eslatma: bu ma'lumotnoma, 112/103 o'rnini bosmaydi.</i>"
+        ),
+        "menu.btn_sos": "🆘 SOS — menga yordam KERAK",
+        "menu.btn_panic": "😰 Qo'rqyapman (panic-rejim)",
+        "menu.btn_critical": "🚨 Kritik holatlar",
+        "menu.btn_urgent": "⚠️ Shoshilinch holatlar",
+        "menu.btn_minor": "🩹 Engil holatlar",
+        "menu.btn_training": "🎓 O'qish (testlar + amaliyot)",
+        "menu.btn_aed": "📍 Eng yaqin AED",
+        "menu.btn_add_aed": "➕ Xaritaga AED qo'shish",
+        "menu.btn_dispatcher": "📞 112 dispetcheri uchun matn",
+        "menu.btn_certificate": "🎓 Sertifikatim",
+        "menu.btn_profile": "🏅 Profil va XP",
+        "menu.btn_ask": "❓ Erkin savol (AI)",
+        "menu.btn_feedback": "📊 Fikr bildirish",
+        "menu.training_intro": (
+            "🎓 <b>O'qish rejimi.</b> Stsenariy tanlang — bot avval qisqa «oldindan» test, "
+            "keyin qadamlar va yakuniy testni o'tkazadi. Natija o'sganini ko'rasiz."
+        ),
+        "menu.training_empty": "Hali testli stsenariylar yo'q. Keyinroq qayting.",
+        "step.back": "« oldingi qadam",
+        "step.fwd": "keyingi qadam »",
+        "step.metro": "🥁 Metronomni yoqish",
+        "step.menu": "« menyuga",
+        "step.finish": "✅ Yakunlash",
+        "step.finish_train": "✅ Yakunlash va yakuniy test",
+        "scenario.completed": "👍 Stsenariy yakunlandi. O'zingizni sinamoqchimisiz? «🎓 O'qish» tugmasi.",
+        "scenario.training_pre": "<b>O'qishdan oldingi test.</b>\n\n{question}",
+        "scenario.training_post": "<b>Yakuniy test.</b>\n\n{question}",
     },
     "kk": {
         "lang.changed": "Интерфейс тілі: қазақша.",
@@ -407,6 +514,40 @@ _STRINGS: dict[str, dict[str, str]] = {
         "vision.disabled": "📷 Фотоны тану өшірілген. Мәтінмен жазыңыз — сценарий ұсынамын.",
         "vision.error": "Фотоны танымадым. Қайта жіберіңіз немесе мәтінмен жазыңыз.",
         "vision.too_many": "Фото-сұраулар лимиті бітті, бір сағаттан соң қайта жіберіңіз.",
+        "menu.welcome": (
+            "🚑 <b>СПАС</b> — қалтадағы AI алғашқы көмек көмекшіңің\n\n"
+            "Төтенше жағдайларда қадаммен-қадам бағыттаймын. 30 сценарий.\n\n"
+            "<b>Осы сәтте болды ма?</b> /sos. Тыныштану керек пе? /panic.\n"
+            "<b>Алдын ала үйренгің келеді ме?</b> «🎓 Оқыту» батырмасы — тесттер бурын және кейін.\n\n"
+            "<i>Ескерту: бұл анықтама, 112/103-тің орнын баспайды.</i>"
+        ),
+        "menu.btn_sos": "🆘 SOS — ҚАЗІР көмек керек",
+        "menu.btn_panic": "😰 Қорқыныштымын (panic-режим)",
+        "menu.btn_critical": "🚨 Сындарлы жағдайлар",
+        "menu.btn_urgent": "⚠️ Шуғыл жағдайлар",
+        "menu.btn_minor": "🩹 Жеңіл жағдайлар",
+        "menu.btn_training": "🎓 Оқыту (тесттер + практика)",
+        "menu.btn_aed": "📍 Ең жақын AED",
+        "menu.btn_add_aed": "➕ Картаға AED қосу",
+        "menu.btn_dispatcher": "📞 112-ге не айту керек",
+        "menu.btn_certificate": "🎓 Менің сертификатым",
+        "menu.btn_profile": "🏅 Профиль және XP",
+        "menu.btn_ask": "❓ Еркін сұрақ (AI)",
+        "menu.btn_feedback": "📊 Пікір қалдыру",
+        "menu.training_intro": (
+            "🎓 <b>Оқыту режимі.</b> Сценарий таңдаңыз — бот баста қысқа «бұрынғы» тест "
+            "жасайды, қадамдардан өткізеді және қорытынды тест ұсынады."
+        ),
+        "menu.training_empty": "Тестті сценарийлер жоқ. Кейінірек келіңіз.",
+        "step.back": "« алдыңғы қадам",
+        "step.fwd": "келесі қадам »",
+        "step.metro": "🥁 Метроном қосу",
+        "step.menu": "« менюге",
+        "step.finish": "✅ Аяқтау",
+        "step.finish_train": "✅ Аяқтау және қорытынды тест",
+        "scenario.completed": "👍 Сценарий аяқталды. Өзіңізді тексергіңіз келе ме? «🎓 Оқыту» түймесін басыңыз.",
+        "scenario.training_pre": "<b>Оқытудан алдынғы тест.</b>\n\n{question}",
+        "scenario.training_post": "<b>Қорытынды тест.</b>\n\n{question}",
     },
 }
 
