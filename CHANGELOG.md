@@ -6,6 +6,18 @@
 
 ## [Unreleased]
 
+### Added — Max (мессенджер VK; май 2026)
+* **`bot/max/`** — новый адаптер под Max Bot API (`platform-api.max.ru`):
+  - `client.py` — async-клиент (long-polling, send_message, callback) поверх
+    aiohttp; `MaxButton` поддерживает `callback`/`link`-кнопки.
+  - `handlers.py` — переиспользует `Catalogue`, `load_dispatcher_checklist`,
+    `load_panic_protocol`. Реализованы команды /start, /sos, /panic,
+    /dispatcher, /aed, /scenarios <id>, /help и inline-меню.
+  - `__main__.py` — entrypoint `python -m bot.max` с graceful-shutdown.
+* `Procfile` — добавлен процесс `max: python -m bot.max`.
+* `.env.example` — переменные `MAX_BOT_TOKEN`, `MAX_API_BASE`.
+* Тесты: 18 кейсов в `tests/test_max_client.py` (клиент, рендер, dispatch).
+
 ### Added — final-polish (май 2026)
 * **i18n SOS / panic / dispatcher:** ключи `sos.text`, `nav.back/cancel`,
   `cat.{critical,urgent,minor}`, `panic.*`, `disp.*` для ru/en/uz/kk.
