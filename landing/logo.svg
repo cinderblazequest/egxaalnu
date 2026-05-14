@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="СПАС">
+  <title>СПАС — AI-помощник первой помощи</title>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E63946"/>
+      <stop offset="100%" stop-color="#9B0E1A"/>
+    </linearGradient>
+    <linearGradient id="cross" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#F1FAEE"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+      <feOffset dx="0" dy="2"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.35"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="256" height="256" rx="56" ry="56" fill="url(#bg)"/>
+  <g filter="url(#shadow)">
+    <rect x="106" y="56" width="44" height="144" rx="10" ry="10" fill="url(#cross)"/>
+    <rect x="56" y="106" width="144" height="44" rx="10" ry="10" fill="url(#cross)"/>
+  </g>
+  <g transform="translate(128 226)" font-family="'Inter','Helvetica Neue',Arial,sans-serif"
+     font-size="20" font-weight="700" text-anchor="middle" fill="#FFFFFF" letter-spacing="3">
+    <text>СПАС</text>
+  </g>
+</svg>

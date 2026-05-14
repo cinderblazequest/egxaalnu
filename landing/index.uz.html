@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>СПАС — o‘smirlar uchun cho‘ntakdagi sun'iy intellekt — birinchi yordam</title>
+<meta name="description" content="СПАС — Telegramdagi AI yordamchisi. Rossiya o‘smirlarini birinchi yordamning 30 stsenariysi bo‘yicha bosqichma-bosqich olib boradi: CPR metronomi, AED xaritasi va 112 raqamiga bir tugma bilan qo‘ng‘iroq.">
+<style>
+  :root {
+    --bg: #0b0d10;
+    --fg: #f4f6f8;
+    --accent: #ff3b30;
+    --accent-2: #34c759;
+    --muted: #b0b8c1;
+    --card: #15181d;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PT Sans", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    line-height: 1.55;
+  }
+  header {
+    padding: 64px 24px 32px;
+    text-align: center;
+    background: radial-gradient(circle at 50% 0%, #1a2030 0%, var(--bg) 70%);
+  }
+  h1 { font-size: 56px; margin: 0 0 8px; letter-spacing: -1px; }
+  .tag {
+    color: var(--accent); font-weight: 600; text-transform: uppercase;
+    letter-spacing: 2px; font-size: 14px; margin-bottom: 18px;
+  }
+  .subtitle { font-size: 22px; color: var(--muted); max-width: 720px; margin: 0 auto 28px; }
+  .cta {
+    display: inline-block; padding: 16px 28px; background: var(--accent);
+    color: #fff; border-radius: 14px; text-decoration: none; font-size: 17px;
+    font-weight: 600; margin: 0 8px 12px; transition: transform 0.15s ease;
+  }
+  .cta:hover { transform: translateY(-2px); }
+  .cta.secondary { background: transparent; border: 1px solid var(--muted); color: var(--fg); }
+  section { padding: 56px 24px; max-width: 1100px; margin: 0 auto; }
+  h2 { font-size: 32px; margin-top: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+  .card { background: var(--card); border-radius: 18px; padding: 22px; border: 1px solid #1f242b; }
+  .card h3 { margin: 0 0 10px; font-size: 18px; }
+  .card p { margin: 0; color: var(--muted); }
+  .stat { text-align: center; background: var(--card); padding: 26px 18px; border-radius: 18px; }
+  .stat .num { color: var(--accent); font-size: 38px; font-weight: 700; line-height: 1; }
+  .stat .label { color: var(--muted); margin-top: 6px; font-size: 14px; }
+  .quote {
+    border-left: 4px solid var(--accent); padding-left: 16px;
+    color: var(--muted); margin: 24px 0;
+  }
+  footer {
+    text-align: center; padding: 40px 24px; color: var(--muted);
+    font-size: 14px; border-top: 1px solid #1f242b;
+  }
+  .disclaimer {
+    background: #1d1411; border: 1px solid #5a2b22; color: #ffb3a7;
+    padding: 14px 18px; border-radius: 12px; margin: 24px 0 0; font-size: 14px;
+  }
+  .lang { position: absolute; top: 16px; right: 24px; }
+  .lang a { color: var(--muted); text-decoration: none; font-size: 14px; margin-left: 12px; }
+  .lang a.active { color: var(--fg); font-weight: 600; }
+  @media (max-width: 600px) { h1 { font-size: 40px; } .subtitle { font-size: 18px; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="lang">
+    <a href="index.html">RU</a>
+    <a href="index.en.html">EN</a>
+    <a href="index.uz.html" class="active">UZ</a>
+    <a href="index.kk.html">KK</a>
+  </div>
+  <div class="tag">«Mening mamlakatim — Mening Rossiyam» 2026 tanlovi · «Mening sog‘lig‘im»</div>
+  <h1>СПАС</h1>
+  <div class="subtitle">O‘smirlar uchun Telegramdagi AI birinchi yordam yordamchisi. 30 ta stsenariy, CPR ovozli metronomi, AED xaritasi, 112 raqamiga bir tugma bilan qo‘ng‘iroq. Bepul. Ilova o‘rnatish shart emas.</div>
+  <a class="cta" href="https://t.me/SPAS_HEALTH_BOT" target="_blank">Telegramda ochish</a>
+  <a class="cta secondary" href="#how">Qanday ishlaydi</a>
+</header>
+
+<section id="how">
+  <h2>Qanday ishlaydi</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>1. /sos buyrug‘i</h3>
+      <p>Telegramda /sos ni bosing — bot sizni protokol bo‘yicha bosqichma-bosqich olib boradi.</p>
+    </div>
+    <div class="card">
+      <h3>2. 112 raqamiga qo‘ng‘iroq</h3>
+      <p>«112 ga qo‘ng‘iroq» tugmasi yagona Rossiya qutqaruv raqamini avtomatik teradi.</p>
+    </div>
+    <div class="card">
+      <h3>3. CPR metronomi</h3>
+      <p>Daqiqada 110 ta zarba ko‘krak siqishlari ritmini boshqaradi — sanashga hojat yo‘q.</p>
+    </div>
+    <div class="card">
+      <h3>4. AED xaritasi</h3>
+      <p>Bot geolokatsiyangiz bo‘yicha eng yaqin avtomatik tashqi defibrillatorni topadi.</p>
+    </div>
+  </div>
+</section>
+
+<section id="numbers">
+  <h2>Nima uchun muhim</h2>
+  <div class="grid">
+    <div class="stat"><div class="num">200–300 ming</div><div class="label">Rossiyada har yili to‘satdan yurak to‘xtashi</div></div>
+    <div class="stat"><div class="num">5–7 %</div><div class="label">Rossiyadagi yashash darajasi (treningli mamlakatlarda 50–60 %)</div></div>
+    <div class="stat"><div class="num">×3</div><div class="label">CPR ni o‘z vaqtida boshlash yashash imkoniyatini uch barobar oshiradi</div></div>
+    <div class="stat"><div class="num">78 yosh</div><div class="label">Rossiya 2030 yilga umr ko‘rish maqsadi (Farmoyish 309)</div></div>
+  </div>
+  <div class="quote">«Birinchi 4–6 daqiqada o‘tkir CPR yashash imkoniyatini uch barobar oshiradi.»<br>— Rossiya Milliy Reanimatsiya Kengashi, 2024.</div>
+</section>
+
+<section>
+  <h2>Botdagi 30 ta stsenariy</h2>
+  <div class="grid">
+    <div class="card"><h3>Kritik</h3><p>Kattalar / bola / chaqaloq uchun CPR. Bo‘g‘ilish. Arteriya qon ketishi. Anafilaksiya. Elektr toki. Cho‘kish. Insult. Yurak xurujlari. Karbonat oksidi bilan zaharlanish.</p></div>
+    <div class="card"><h3>Shoshilinch</h3><p>Epilepsiya. Hushdan ketish. Gipoglikemiya. Sovuqlash. Issiq urishi. Spirtli ichimliklar bilan zaharlanish. Sinish. Bosh jarohati. Kuyish. Astma. Sovuqdan jarohat. Ilon chaqishi.</p></div>
+    <div class="card"><h3>Yengil</h3><p>Burundan qon ketishi. Vahima xurujlari. Kesilish, lat, payvand (keyingi versiyada).</p></div>
+  </div>
+  <div class="disclaimer">СПАС — bu axborot yordamchisi. U 112/103 raqamlarini almashtirmaydi. Hayot uchun xavfli vaziyatda birinchi qadam — favqulodda xizmatga qo‘ng‘iroq.</div>
+</section>
+
+<section>
+  <h2>Ochiq kod, ochiq metodika</h2>
+  <p>СПАС Apache 2.0 litsenziyasi ostidagi ochiq kodli loyiha. Har qanday maktab, NPO yoki hudud uni bir soatdan kam vaqt ichida ishga tushira oladi. Metodika va o‘quv kontenti CC BY-NC-SA 4.0 ostida.</p>
+  <p><a class="cta secondary" href="https://github.com/your-username/spas-ai" target="_blank">GitHub</a> <a class="cta secondary" href="#" target="_blank">Metodika (PDF)</a></p>
+</section>
+
+<footer>
+  «Mening mamlakatim — Mening Rossiyam» 2026 tanlovi, «Mening sog‘lig‘im» yo‘nalishi uchun yuborilgan.<br>
+  Muallif: [F.I.O.], 17 yosh, [Hudud]. © 2026.
+</footer>
+</body>
+</html>

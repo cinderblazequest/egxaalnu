@@ -1,0 +1,32 @@
+[run]
+branch = False
+source = bot, tools
+omit =
+    bot/__main__.py
+    bot/handlers.py
+    bot/health.py
+    bot/log_setup.py
+    bot/llm.py
+    bot/stt.py
+    bot/tts.py
+    bot/metronome.py
+    bot/teacher.py
+    bot/aed_submission.py
+    bot/vision.py
+    tools/generate_metronome.py
+    tools/generate_methodology_pdf.py
+    tools/generate_infographic_pdf.py
+    tools/scenarios_to_pdf.py
+    tools/finance_to_xlsx.py
+    tools/generate_icons.py
+    tools/patch_pre_tests.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    raise NotImplementedError
+    if __name__ == .__main__.:
+    if TYPE_CHECKING:
+    \.\.\.
+show_missing = True
+skip_covered = False

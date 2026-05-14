@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>СПАС — жасөспірімдерге арналған қалтадағы AI-алғашқы көмек</title>
+<meta name="description" content="СПАС — Telegram-арналған AI көмекшісі. Ресей жасөспірімдерін алғашқы көмектің 30 сценарийі бойынша қадам-қадаммен жүргізеді: CPR-метроном, АНД картасы, 112-ге бір түймемен қоңырау.">
+<style>
+  :root {
+    --bg: #0b0d10;
+    --fg: #f4f6f8;
+    --accent: #ff3b30;
+    --accent-2: #34c759;
+    --muted: #b0b8c1;
+    --card: #15181d;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PT Sans", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    line-height: 1.55;
+  }
+  header {
+    padding: 64px 24px 32px;
+    text-align: center;
+    background: radial-gradient(circle at 50% 0%, #1a2030 0%, var(--bg) 70%);
+  }
+  h1 { font-size: 56px; margin: 0 0 8px; letter-spacing: -1px; }
+  .tag {
+    color: var(--accent); font-weight: 600; text-transform: uppercase;
+    letter-spacing: 2px; font-size: 14px; margin-bottom: 18px;
+  }
+  .subtitle { font-size: 22px; color: var(--muted); max-width: 720px; margin: 0 auto 28px; }
+  .cta {
+    display: inline-block; padding: 16px 28px; background: var(--accent);
+    color: #fff; border-radius: 14px; text-decoration: none; font-size: 17px;
+    font-weight: 600; margin: 0 8px 12px; transition: transform 0.15s ease;
+  }
+  .cta:hover { transform: translateY(-2px); }
+  .cta.secondary { background: transparent; border: 1px solid var(--muted); color: var(--fg); }
+  section { padding: 56px 24px; max-width: 1100px; margin: 0 auto; }
+  h2 { font-size: 32px; margin-top: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+  .card { background: var(--card); border-radius: 18px; padding: 22px; border: 1px solid #1f242b; }
+  .card h3 { margin: 0 0 10px; font-size: 18px; }
+  .card p { margin: 0; color: var(--muted); }
+  .stat { text-align: center; background: var(--card); padding: 26px 18px; border-radius: 18px; }
+  .stat .num { color: var(--accent); font-size: 38px; font-weight: 700; line-height: 1; }
+  .stat .label { color: var(--muted); margin-top: 6px; font-size: 14px; }
+  .quote {
+    border-left: 4px solid var(--accent); padding-left: 16px;
+    color: var(--muted); margin: 24px 0;
+  }
+  footer {
+    text-align: center; padding: 40px 24px; color: var(--muted);
+    font-size: 14px; border-top: 1px solid #1f242b;
+  }
+  .disclaimer {
+    background: #1d1411; border: 1px solid #5a2b22; color: #ffb3a7;
+    padding: 14px 18px; border-radius: 12px; margin: 24px 0 0; font-size: 14px;
+  }
+  .lang { position: absolute; top: 16px; right: 24px; }
+  .lang a { color: var(--muted); text-decoration: none; font-size: 14px; margin-left: 12px; }
+  .lang a.active { color: var(--fg); font-weight: 600; }
+  @media (max-width: 600px) { h1 { font-size: 40px; } .subtitle { font-size: 18px; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="lang">
+    <a href="index.html">RU</a>
+    <a href="index.en.html">EN</a>
+    <a href="index.uz.html">UZ</a>
+    <a href="index.kk.html" class="active">KK</a>
+  </div>
+  <div class="tag">«Менің елім — Менің Ресейім» 2026 байқауы · «Менің денсаулығым»</div>
+  <h1>СПАС</h1>
+  <div class="subtitle">Жасөспірімдерге арналған Telegram-арналған AI алғашқы көмек көмекшісі. 30 сценарий, CPR дауыстық метрономы, АНД картасы, 112-ге бір түймемен қоңырау. Тегін. Қосымша орнату қажет емес.</div>
+  <a class="cta" href="https://t.me/SPAS_HEALTH_BOT" target="_blank">Telegram-да ашу</a>
+  <a class="cta secondary" href="#how">Қалай жұмыс істейді</a>
+</header>
+
+<section id="how">
+  <h2>Қалай жұмыс істейді</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>1. /sos командасы</h3>
+      <p>Telegram-да /sos басыңыз — бот сізді протокол бойынша қадам-қадаммен жүргізеді.</p>
+    </div>
+    <div class="card">
+      <h3>2. 112-ге қоңырау</h3>
+      <p>«112-ге қоңырау» түймесін бір рет басу біртұтас Ресей құтқару нөмірін автоматты түрде тереді.</p>
+    </div>
+    <div class="card">
+      <h3>3. CPR метрономы</h3>
+      <p>Минутына 110 соққы көкірек қысуын ритмде ұстайды — өзіңіз санаудың қажеті жоқ.</p>
+    </div>
+    <div class="card">
+      <h3>4. АНД картасы</h3>
+      <p>Бот сіздің геолокацияңыз бойынша ең жақын автоматты сыртқы дефибриляторды табады.</p>
+    </div>
+  </div>
+</section>
+
+<section id="numbers">
+  <h2>Неліктен маңызды</h2>
+  <div class="grid">
+    <div class="stat"><div class="num">200–300 мың</div><div class="label">Ресейде жыл сайын кенет жүрек тоқтауы</div></div>
+    <div class="stat"><div class="num">5–7 %</div><div class="label">Ресейдегі тірі қалу деңгейі (тренингі бар елдерде 50–60 %)</div></div>
+    <div class="stat"><div class="num">×3</div><div class="label">Уақытында басталған CPR тірі қалу мүмкіндігін үш есе арттырады</div></div>
+    <div class="stat"><div class="num">78 жас</div><div class="label">Ресейдің 2030 жылға өмір сүру жасы мақсаты (Жарлық 309)</div></div>
+  </div>
+  <div class="quote">«Алғашқы 4–6 минутта көмекшінің CPR жасауы тірі қалу мүмкіндігін үш есе арттырады.»<br>— Ресейдің Ұлттық Реанимация Кеңесі, 2024.</div>
+</section>
+
+<section>
+  <h2>Боттағы 30 сценарий</h2>
+  <div class="grid">
+    <div class="card"><h3>Сын</h3><p>Ересек / бала / нәресте CPR. Тұншығу. Артериялық қан кету. Анафилаксия. Электр тоғы. Суға бату. Инсульт. Жүрек ұстамасы. Көміртек тотығымен улану.</p></div>
+    <div class="card"><h3>Шұғыл</h3><p>Эпилепсия. Естен тану. Гипогликемия. Аяздау. Қызып кету. Алкогольдік улану. Сынық. Бас жарақаты. Күйік. Астма. Үсік. Жылан шағуы.</p></div>
+    <div class="card"><h3>Жеңіл</h3><p>Мұрыннан қан кету. Үрей ұстамасы. Кесу, көгерту, шаншу (келесі шығарылымда).</p></div>
+  </div>
+  <div class="disclaimer">СПАС — ақпараттық көмекші. Ол 112/103 қызметтерін алмастырмайды. Өмірге қауіп төнсе, алдымен жедел қызметке қоңырау шалу қажет.</div>
+</section>
+
+<section>
+  <h2>Ашық код, ашық әдістеме</h2>
+  <p>СПАС — Apache 2.0 лицензиясы бойынша ашық бастапқы код. Кез келген мектеп, ҮЕҰ немесе аймақ оны бір сағаттан аз уақытта іске қоса алады. Әдістеме мен оқу мазмұны CC BY-NC-SA 4.0 бойынша.</p>
+  <p><a class="cta secondary" href="https://github.com/your-username/spas-ai" target="_blank">GitHub</a> <a class="cta secondary" href="#" target="_blank">Әдістеме (PDF)</a></p>
+</section>
+
+<footer>
+  «Менің елім — Менің Ресейім» 2026 байқауының «Менің денсаулығым» бағыты үшін жіберілген.<br>
+  Авторы: [Аты-жөні], 17 жас, [Облыс]. © 2026.
+</footer>
+</body>
+</html>

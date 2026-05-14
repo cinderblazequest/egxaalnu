@@ -1,0 +1,41 @@
+{
+  "name": "СПАС — первая помощь",
+  "short_name": "СПАС",
+  "description": "AI-помощник первой помощи для подростков 14–17 лет: 30 сценариев, метроном СЛР, карта АНД, звонок 112.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b0d10",
+  "theme_color": "#ff3b30",
+  "lang": "ru",
+  "categories": ["education", "health", "medical"],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Открыть бота",
+      "short_name": "Бот",
+      "url": "https://t.me/your_bot_username",
+      "description": "Открыть СПАС в Telegram"
+    },
+    {
+      "name": "Дашборд",
+      "short_name": "Дашборд",
+      "url": "./dashboard.html",
+      "description": "Метрики проекта"
+    }
+  ]
+}
