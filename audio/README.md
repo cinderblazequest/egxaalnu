@@ -2,13 +2,38 @@
 
 Папка для голосовых метрономов СЛР.
 
-## Что нужно сгенерировать (5 минут работы)
+В репозитории уже лежат три mp3-файла, сгенерированные через FFmpeg
+(чистый sine-click 1000 Гц, длительность 60 секунд):
 
-Чтобы бот отправлял пользователю голосовой метроном (а не текстовый), сгенерируй три mp3-файла:
+- `metronome_100.mp3` — 100 ударов/мин (нижняя граница AHA/ERC).
+- `metronome_110.mp3` — 110 ударов/мин (используется по умолчанию).
+- `metronome_120.mp3` — 120 ударов/мин (верхняя граница).
 
-- `metronome_100.mp3` — 100 ударов/мин
-- `metronome_110.mp3` — 110 ударов/мин (используется по умолчанию)
-- `metronome_120.mp3` — 120 ударов/мин
+Бот автоматически отдаёт `metronome_110.mp3` при нажатии кнопки
+«🥁 Метроном» в сценарии СЛР. Если по какой-то причине файла нет —
+происходит fallback на текстовый метроном.
+
+## Как пересгенерировать (если нужны другие BPM)
+
+### Способ 0: FFmpeg-скрипт (используется в репозитории)
+
+```bash
+for bpm in 100 110 120; do
+  PERIOD=$(python3 -c "print(60.0/$bpm)")
+  ffmpeg -y -f lavfi -i "sine=frequency=1000:duration=0.04" \
+    -af "afade=t=in:st=0:d=0.005,afade=t=out:st=0.03:d=0.01,volume=0.7" \
+    -ar 22050 -ac 1 click.wav
+  SILENCE=$(python3 -c "print(max(0.01, $PERIOD - 0.04))")
+  ffmpeg -y -f lavfi -i "anullsrc=channel_layout=mono:sample_rate=22050" \
+    -t $SILENCE silence.wav
+  ffmpeg -y -i click.wav -i silence.wav \
+    -filter_complex "[0:a][1:a]concat=n=2:v=0:a=1" -ar 22050 -ac 1 one_beat.wav
+  BEATS=$(python3 -c "print(int(60 / $PERIOD))")
+  python3 -c "print('\n'.join(['file ' + repr('one_beat.wav')] * $BEATS))" > list.txt
+  ffmpeg -y -f concat -safe 0 -i list.txt -c:a libmp3lame -b:a 32k -ar 22050 -ac 1 \
+    metronome_${bpm}.mp3
+done
+```
 
 ### Способ 1: онлайн-генератор (без установки)
 

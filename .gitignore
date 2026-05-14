@@ -18,8 +18,6 @@ build/
 dist/
 *.egg-info/
 docs/build/
-audio/*.mp3
-!audio/README.md
 landing/screenshots/*.png
 landing/screenshots/*.jpg
 !landing/screenshots/README.md
