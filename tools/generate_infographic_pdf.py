@@ -71,7 +71,7 @@ def draw(c: canvas.Canvas) -> None:
     c.setFont("Helvetica", 14)
     for i, line in enumerate(
         [
-            "Telegram-бот @spas_first_aid_bot — без установки приложения.",
+            "Telegram-бот @SPAS_HEALTH_BOT — без установки приложения.",
             "30 сценариев + pre/post-test, голосовой метроном 110 BPM.",
             "Карта АНД + краудсорс, чек-лист «что сказать диспетчеру 112».",
             "Panic-режим, цифровой сертификат, открытый код Apache 2.0.",

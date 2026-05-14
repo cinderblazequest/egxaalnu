@@ -16,7 +16,7 @@ style: |
   footer { color: #6b7280; font-size: 14px; }
   header { color: #6b7280; font-size: 14px; }
 header: 'СПАС · «Моя страна — Моя Россия» 2026'
-footer: 'github.com/your-username/spas-ai · @your_bot_username'
+footer: 'github.com/your-username/spas-ai · @SPAS_HEALTH_BOT'
 ---
 
 <!-- _class: lead -->
@@ -129,14 +129,26 @@ graph LR
 
 <!-- _class: lead -->
 
-## Слайд 10 · CTA
+## Слайд 10 · Две платформы: Telegram + Max
+
+**Основная платформа** — Telegram-бот **@SPAS_HEALTH_BOT** (готов, на проде).
+
+**Параллельно реализован Max-бот** (мессенджер Max от VK Group, новинка 2025–2026): пошаговое прохождение, pre/post-тесты, геймификация, код сертификата. Код полностью готов в репозитории (`bot/max/`).
+
+> ⚠ Для публикации в каталоге Max API нужна регистрация ИП/ООО. Школа, регион или МЧС-организация может развернуть бота под своим именем — мы предоставляем открытый код и инструкцию.
+
+---
+
+<!-- _class: lead -->
+
+## Слайд 11 · CTA
 
 > **«Один сценарий в боте — пять минут жизни ученику.**
 > **Десять сценариев — спасённая бабушка.»**
 
-- 🤖 Telegram: **@your_bot_username**
-- 📦 GitHub: github.com/your-username/spas-ai
-- 🌐 Сайт + PWA: your-username.github.io/spas-ai/
+- 🤖 Telegram: **@SPAS_HEALTH_BOT**
+- 📦 GitHub: github.com/cinderblazequest/egxaalnu
+- 🌐 Сайт + PWA: cinderblazequest.github.io/egxaalnu/
 - 📨 Контакт: [email]
 
 **Просим жюри:** пилот в одном регионе на 6 месяцев — покажем рост выживаемости при остановке сердца у свидетелей.

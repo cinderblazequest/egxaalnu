@@ -66,7 +66,7 @@
 
 ## Контакты для прессы
 
-- Telegram-бот: https://t.me/your_bot_username
+- Telegram-бот: https://t.me/SPAS_HEALTH_BOT
 - Сайт: https://your-username.github.io/spas-ai/
 - GitHub: https://github.com/your-username/spas-ai
 - Автор: \[ФИО\], \[email\], \[телефон\]

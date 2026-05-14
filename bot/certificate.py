@@ -30,7 +30,7 @@ class CertificatePayload:
     scenarios_completed: int
     issued_at: dt.datetime
     code: str
-    bot_url: str = "https://t.me/spas_first_aid_bot"
+    bot_url: str = "https://t.me/SPAS_HEALTH_BOT"
 
 
 def build_certificate_code(user_id: int, scenarios_completed: int, issued_at: dt.datetime) -> str:

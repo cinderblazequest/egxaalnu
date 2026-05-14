@@ -20,6 +20,8 @@ from dotenv import load_dotenv
 from bot.log_setup import setup_logging
 from bot.max.client import MaxAPIError, MaxBotClient
 from bot.max.handlers import build_context, dispatch_update
+from bot.max.state import MaxStateMachine, SqliteStateStore
+from bot.storage import Storage
 
 ROOT = Path(__file__).resolve().parents[2]
 load_dotenv(ROOT / ".env")
@@ -33,7 +35,12 @@ async def run() -> None:
         raise RuntimeError("MAX_BOT_TOKEN не задан в .env")
 
     base_url = os.getenv("MAX_API_BASE", "https://platform-api.max.ru")
-    ctx = build_context(ROOT / "content")
+    db_path = os.getenv("DB_PATH", str(ROOT / "data" / "spas.db"))
+    storage = Storage(db_path)
+    await storage.init()
+
+    ctx = build_context(ROOT / "content", storage=storage)
+    ctx.state = MaxStateMachine(store=SqliteStateStore(storage.db))
     log.info("Контент Max-бота загружен: %d сценариев", len(ctx.catalogue.scenarios))
 
     stop = asyncio.Event()
@@ -42,28 +49,31 @@ async def run() -> None:
         with contextlib.suppress(NotImplementedError, RuntimeError):
             loop.add_signal_handler(sig, stop.set)
 
-    async with MaxBotClient(token, base_url=base_url) as client:
-        me = await client.get_me()
-        log.info("Max-бот запущен: %s (id=%s)", me.get("name"), me.get("user_id"))
-        marker: int | None = None
-        while not stop.is_set():
-            try:
-                payload = await client.get_updates(marker=marker, timeout=30)
-            except MaxAPIError as exc:
-                log.warning("Max API error %s: %s", exc.status, exc.body)
-                await asyncio.sleep(2.0)
-                continue
-            except Exception as exc:
-                log.warning("Сетевая ошибка long-polling: %s", exc)
-                await asyncio.sleep(2.0)
-                continue
-            marker = payload.get("marker") or marker
-            for update in payload.get("updates", []) or []:
+    try:
+        async with MaxBotClient(token, base_url=base_url) as client:
+            me = await client.get_me()
+            log.info("Max-бот запущен: %s (id=%s)", me.get("name"), me.get("user_id"))
+            marker: int | None = None
+            while not stop.is_set():
                 try:
-                    await dispatch_update(client, ctx, update)
-                except Exception:
-                    log.exception("Ошибка обработки апдейта: %s", update)
-        log.info("Max-бот завершает работу")
+                    payload = await client.get_updates(marker=marker, timeout=30)
+                except MaxAPIError as exc:
+                    log.warning("Max API error %s: %s", exc.status, exc.body)
+                    await asyncio.sleep(2.0)
+                    continue
+                except Exception as exc:
+                    log.warning("Сетевая ошибка long-polling: %s", exc)
+                    await asyncio.sleep(2.0)
+                    continue
+                marker = payload.get("marker") or marker
+                for update in payload.get("updates", []) or []:
+                    try:
+                        await dispatch_update(client, ctx, update)
+                    except Exception:
+                        log.exception("Ошибка обработки апдейта: %s", update)
+            log.info("Max-бот завершает работу")
+    finally:
+        await storage.close()
 
 
 if __name__ == "__main__":

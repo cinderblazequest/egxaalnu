@@ -202,6 +202,41 @@ async def _m008_alert_subscriptions(conn: aiosqlite.Connection) -> None:
     await conn.commit()
 
 
+async def _m009_max_user_state(conn: aiosqlite.Connection) -> None:
+    """Состояние Max-бота: текущий шаг сценария, флаг platform у users.
+
+    ``users.platform`` отличает пользователей Telegram (по умолчанию) от Max.
+    Это нужно для аналитики и для разделения лидерборда, если вдруг
+    понадобится в будущем.
+
+    ``max_user_state`` хранит, на каком шаге сценария находится конкретный
+    Max-пользователь — чтобы прохождение переживало рестарт бота.
+    """
+    cur = await conn.execute("PRAGMA table_info(users)")
+    cols = {row[1] for row in await cur.fetchall()}
+    if "platform" not in cols:
+        await conn.execute("ALTER TABLE users ADD COLUMN platform TEXT NOT NULL DEFAULT 'telegram'")
+    await conn.executescript(
+        """
+        CREATE INDEX IF NOT EXISTS idx_users_platform ON users(platform);
+
+        CREATE TABLE IF NOT EXISTS max_user_state (
+            user_id INTEGER PRIMARY KEY,
+            scenario_id TEXT NOT NULL,
+            phase TEXT NOT NULL,
+            step_idx INTEGER NOT NULL DEFAULT 0,
+            q_idx INTEGER NOT NULL DEFAULT 0,
+            pre_correct INTEGER NOT NULL DEFAULT 0,
+            pre_total INTEGER NOT NULL DEFAULT 0,
+            post_correct INTEGER NOT NULL DEFAULT 0,
+            post_total INTEGER NOT NULL DEFAULT 0,
+            updated_at TEXT NOT NULL
+        );
+        """
+    )
+    await conn.commit()
+
+
 MIGRATIONS: list[tuple[int, Migration]] = [
     (1, _m001_user_settings),
     (2, _m002_xp),
@@ -211,6 +246,7 @@ MIGRATIONS: list[tuple[int, Migration]] = [
     (6, _m006_consent),
     (7, _m007_audit_log),
     (8, _m008_alert_subscriptions),
+    (9, _m009_max_user_state),
 ]
 
 

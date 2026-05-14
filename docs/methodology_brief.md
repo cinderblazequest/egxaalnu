@@ -91,6 +91,6 @@
 
 ## 9. Контакт
 
-- Telegram: @your_bot_username
+- Telegram: @SPAS_HEALTH_BOT
 - Сайт: https://your-username.github.io/spas-ai/
 - GitHub: https://github.com/your-username/spas-ai

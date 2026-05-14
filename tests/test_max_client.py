@@ -25,7 +25,8 @@ from bot.max.handlers import (
     render_aed_list,
     render_dispatcher_intro,
     render_panic_intro,
-    render_scenario,
+    render_scenario_intro,
+    render_step,
 )
 
 CONTENT_DIR = Path(__file__).resolve().parents[1] / "content"
@@ -138,13 +139,16 @@ def test_build_context_loads_real_content() -> None:
     assert ctx.panic.breathing_total_cycles >= 1
 
 
-def test_render_scenario_includes_title_and_steps() -> None:
+def test_render_scenario_intro_and_step_text() -> None:
     ctx = build_context(CONTENT_DIR)
     sid, scenario = next(iter(ctx.catalogue.scenarios.items()))
-    text = render_scenario(scenario)
-    assert scenario.title in text
-    assert scenario.steps[0] in text
-    assert "112" in text or scenario.phone in text
+    intro = render_scenario_intro(scenario)
+    assert scenario.title in intro
+    assert scenario.summary in intro
+    step_text = render_step(scenario, 0)
+    assert scenario.steps[0] in step_text
+    assert f"Шаг 1 из {len(scenario.steps)}" in step_text
+    assert "112" in step_text or scenario.phone in step_text
 
 
 def test_render_panic_intro() -> None:

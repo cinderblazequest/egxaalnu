@@ -119,10 +119,10 @@ pytest -q --cov=bot --cov=tools --cov-fail-under=70
 ```bash
 source .venv/bin/activate
 python -m bot
-# Логи: «СПАС-бот запущен: @your_bot_username»
+# Логи: «СПАС-бот запущен: @SPAS_HEALTH_BOT»
 ```
 
-В Telegram открой свой `@your_bot_username` и нажми **Start**.
+В Telegram открой свой `@SPAS_HEALTH_BOT` и нажми **Start**.
 
 ### 5.2 Только Max
 
